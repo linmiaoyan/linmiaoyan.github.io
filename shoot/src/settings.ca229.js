@@ -1,0 +1,1 @@
+window._CCSettings={platform:"web-mobile",groupList:["default","ball","rim"],collisionMatrix:[[false,true],[true,false,true],[false,true,false]],hasResourcesBundle:false,hasStartSceneBundle:false,remoteBundles:[],subpackages:[],launchScene:"db://assets/BacketBall.fire",orientation:"",jsList:[],bundleVers:{internal:"f1413",main:"3c250"}};
