@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>修仙模拟器</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 开始界面 -->
+        <div id="start-screen">
+            <h1 class="game-title">简易修仙模拟器</h1>
+            <div class="input-group">
+                <label for="sect-name">宗门名称</label>
+                <input type="text" id="sect-name" placeholder="随机生成">
+            </div>
+            <div class="input-group">
+                <label for="master-name">宗主名称</label>
+                <input type="text" id="master-name" placeholder="随机生成">
+            </div>
+            <button class="start-btn" id="start-game">开始修仙之旅</button>
+            <div class="game-goal">
+                <h3>目标</h3>
+                <p>将宗门发展到顶级，培养出至少三名化神期弟子，成为修仙界第一宗门！</p>
+            </div>
+        </div>
+        
+        <!-- 主游戏界面 -->
+        <div id="game-screen">
+            <div class="game-header">
+                <div class="sect-info">
+                    <div class="sect-name" id="display-sect-name">宗</div>
+                    <div class="sect-level" id="sect-level">宗门等级：初创</div>
+                </div>
+                <div class="resources">
+                    <div class="resource">
+                        <span class="resource-icon">丹药🌿</span>
+                        <span id="pill-count">0</span>
+                    </div>
+                    <div class="resource">
+                        <span class="resource-icon">灵石💎</span>
+                        <span id="spirit-stones">100</span>
+                    </div>
+                    <div class="resource">
+                        <span class="resource-icon">📅</span>
+                        <span id="current-date">元始</span>
+                    </div>
+                    <div class="resource">
+                        <span class="resource-icon">🐉</span>
+                        <span id="current-element">本月时运五行：金</span>
+                    </div>
+                    <div class="resource treasures-btn" id="open-treasures">
+                        <span class="resource-icon">🌟</span>
+                        <span>天材地宝</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="game-content">
+                <!-- 中央面板 - 宗主 -->
+                <div class="master-panel">
+                    <div class="master-avatar" id="master-avatar">无名宗</div>
+                    <div class="master-name" id="master-name-display"></div>
+                    <div class="cultivation-level" id="master-level-display">炼气期</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="master-progress" style="width: 20%;"></div>
+                    </div>
+                    <div class="master-actions">
+                        <button class="action-btn" id="generate-pills">炼制丹药</button>
+                        <button class="action-btn" id="master-cultivate">闭关修炼</button>
+                        <button class="action-btn" id="adventure-btn">历练</button>
+                        <button class="action-btn" id="auto-pill-generate">自动炼丹</button>
+                        <button class="action-btn" id="auto-pill-distribute">自动分配</button>
+                    </div>
+                </div>
+                
+                <!-- 丹药生成区域 -->
+                <div class="pill-generation">
+                    <div class="pill-container" id="pill-container">
+                        <!-- 丹药将在这里动态生成 -->
+                    </div>
+                </div>
+                
+                <!-- 弟子管理区域 -->
+                <div class="disciples-section">
+                    <div class="disciples-header">
+                        <div class="disciples-title">门下弟子 (<span id="disciple-count">0</span>/<span id="disciple-limit">3</span>)</div>
+                        <button class="recruit-btn" id="recruit-disciple">招收弟子</button>
+                    </div>
+                    
+                    <div class="disciples-container" id="disciples-container">
+                        <!-- 弟子卡片将在这里动态生成 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 招收弟子弹窗 -->
+        <div class="modal" id="recruit-modal">
+            <div class="modal-content">
+                <div class="modal-title">招收弟子</div>
+                <div class="modal-body" id="recruit-result">
+                    <!-- 招收结果将在这里显示 -->
+                </div>
+                <div class="modal-footer">
+                    <button class="modal-btn primary" id="accept-disciple">收入门下</button>
+                    <button class="modal-btn secondary" id="reject-disciple">婉拒</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 天材地宝弹窗 -->
+        <div class="modal" id="treasures-modal">
+            <div class="modal-content">
+                <div class="modal-title">天材地宝</div>
+                <div class="modal-body">
+                    <div id="treasures-container">
+                        <!-- 天材地宝将在这里显示 -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="modal-btn secondary" id="close-treasures">关闭</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 战斗界面 -->
+        <div class="battle-screen" id="battle-screen">
+            <div class="battle-title">宗门对战</div>
+            <div class="battle-arena">
+                <div class="battle-side" id="player-side">
+                    <div class="battle-character" id="player-character">我</div>
+                    <div class="battle-stats">
+                        <div class="battle-hp">
+                            <span>生命: </span>
+                            <span id="player-hp">100</span>
+                        </div>
+                        <div class="battle-element">
+                            <span>属性: </span>
+                            <span id="player-element">金</span>
+                        </div>
+                    </div>
+                    <div class="battle-actions">
+                        <button class="battle-btn" id="attack-btn">攻击</button>
+                        <button class="battle-btn" id="skill-btn">技能</button>
+                        <button class="battle-btn" id="defend-btn">防御</button>
+                    </div>
+                </div>
+                <div class="battle-side" id="enemy-side">
+                    <div class="battle-character" id="enemy-character">敌</div>
+                    <div class="battle-stats">
+                        <div class="battle-hp">
+                            <span>生命: </span>
+                            <span id="enemy-hp">100</span>
+                        </div>
+                        <div class="battle-element">
+                            <span>属性: </span>
+                            <span id="enemy-element">火</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="battle-log" id="battle-log">
+                <!-- 战斗日志将在这里显示 -->
+            </div>
+            <div class="battle-result" id="battle-result"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
