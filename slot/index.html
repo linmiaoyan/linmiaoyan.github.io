@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>老虎机游戏</title>
+  <link rel="stylesheet" href="tiger.css">
+</head>
+<body>
+  <div id="lightsContainer"></div>
+  <h1>老虎机游戏</h1>
+  
+  <div class="stats-container">
+    <div class="stat-box">
+      <div class="stat-label">积分</div>
+      <div class="stat-value" id="credits">1000</div>
+      <div class="points-animation" id="creditsChange"></div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">轮次</div>
+      <div class="stat-value" id="rounds">0</div>
+    </div>
+  </div>
+  
+  <div class="slot-machine-container">
+    <div class="slot-machine">
+      <div class="reel">
+        <ul class="images"></ul>
+      </div>
+      <div class="reel">
+        <ul class="images"></ul>
+      </div>
+      <div class="reel">
+        <ul class="images"></ul>
+      </div>
+    </div>
+    
+    <div class="lever-container">
+      <div class="lever-base"></div>
+      <div class="lever" id="lever"></div>
+    </div>
+  </div>
+  
+  <div class="result" id="result"></div>
+  
+  <div class="controls">
+    <div class="bet-controls">
+      <button id="decreaseBet">-</button>
+      <div class="bet-amount">
+        <span>下注: </span>
+        <span id="betAmount">50</span>
+      </div>
+      <button id="increaseBet">+</button>
+    </div>
+    <button id="resetButton">重置游戏</button>
+  </div>
+  
+  <script src="tiger.js"></script>
+</body>
+</html>
