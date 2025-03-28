@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>三角函数可视化实验</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+        #control-panel {
+            width: 300px;
+            background: #f5f5f5;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        #experiment-area {
+            flex: 1;
+            position: relative;
+        }
+        canvas {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .control-group {
+            margin-bottom: 20px;
+        }
+        input[type="range"] {
+            width: 200px;
+        }
+        .instruction {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .preset-buttons button {
+            margin: 5px;
+            padding: 5px 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="control-panel">
+        <h2>三角函数实验平台</h2>
+        
+        <div class="control-group">
+            <label>角度θ（弧度）: 
+                <input type="number" id="angleInput" step="0.01" value="0" style="width: 80px;">
+            </label>
+            <input type="range" id="angleSlider" min="0" max="6.28" step="0.01" value="0">
+            <button onclick="toggleAnimation()">自动旋转</button>
+        </div>
+
+        <div class="preset-buttons">
+            <button onclick="setAngle(0)">0</button>
+            <button onclick="setAngle(Math.PI/6)">π/6</button>
+            <button onclick="setAngle(Math.PI/4)">π/4</button>
+            <button onclick="setAngle(Math.PI/2)">π/2</button>
+            <button onclick="setAngle(Math.PI)">π</button>
+        </div>
+
+        <div class="instruction">
+            <h3>实验原理</h3>
+            <p>在单位圆中（半径=1）：</p>
+            <ul>
+                <li>sinθ = 纵坐标值（红色线段）</li>
+                <li>cosθ = 横坐标值（蓝色线段）</li>
+                <li>tanθ = 纵坐标/横坐标（绿色线段）</li>
+            </ul>
+            <p>实时数值：<br>
+                sinθ: <span id="sin-value">0</span><br>
+                cosθ: <span id="cos-value">1</span><br>
+                tanθ: <span id="tan-value">0</span>
+            </p>
+        </div>
+    </div>
+
+    <div id="experiment-area"></div>
+
+    <script>
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        let isAnimating = false;
+        let animationId;
+        let currentAngle = 0;
+
+        // 初始化Canvas
+        function initCanvas() {
+            canvas.width = 800;
+            canvas.height = 600;
+            document.getElementById('experiment-area').appendChild(canvas);
+            window.addEventListener('resize', handleResize);
+        }
+
+        // 绘图函数
+        function draw(θ) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 绘制单位圆
+            ctx.beginPath();
+            ctx.arc(400, 300, 200, 0, 2 * Math.PI);
+            ctx.strokeStyle = '#333';
+            ctx.stroke();
+
+            // 终边
+            ctx.beginPath();
+            ctx.moveTo(400, 300);
+            ctx.lineTo(400 + 200 * Math.cos(θ), 300 - 200 * Math.sin(θ));
+            ctx.strokeStyle = '#333';
+            ctx.stroke();
+
+            // cos投影（蓝色）
+            ctx.beginPath();
+            ctx.moveTo(400, 300);
+            ctx.lineTo(400 + 200 * Math.cos(θ), 300);
+            ctx.strokeStyle = 'blue';
+            ctx.stroke();
+
+            // sin投影（红色）
+            ctx.beginPath();
+            ctx.moveTo(400 + 200 * Math.cos(θ), 300);
+            ctx.lineTo(400 + 200 * Math.cos(θ), 300 - 200 * Math.sin(θ));
+            ctx.strokeStyle = 'red';
+            ctx.stroke();
+
+            // tan投影（绿色）
+            if (Math.abs(Math.cos(θ)) > 0.1) {
+                ctx.beginPath();
+                ctx.moveTo(400, 300);
+                ctx.lineTo(400 + 200, 300 - 200 * Math.tan(θ));
+                ctx.strokeStyle = 'green';
+                ctx.setLineDash([]);
+                ctx.stroke();
+            }
+
+            // 渐近线
+            ctx.setLineDash([5, 5]);
+            [Math.PI/2, 3*Math.PI/2].forEach(x => {
+                ctx.beginPath();
+                ctx.moveTo(400 + x*100, 100);
+                ctx.lineTo(400 + x*100, 500);
+                ctx.strokeStyle = 'purple';
+                ctx.stroke();
+            });
+
+            // 更新数值显示
+            document.getElementById('sin-value').textContent = Math.sin(θ).toFixed(3);
+            document.getElementById('cos-value').textContent = Math.cos(θ).toFixed(3);
+            document.getElementById('tan-value').textContent = 
+                Math.abs(Math.cos(θ)) < 0.01 ? "∞" : (Math.tan(θ)).toFixed(3);
+        }
+
+        // 动画控制
+        function toggleAnimation() {
+            isAnimating = !isAnimating;
+            if (isAnimating) {
+                function animate() {
+                    currentAngle += 0.02;
+                    updateAngle(currentAngle % (2 * Math.PI));
+                    animationId = requestAnimationFrame(animate);
+                }
+                animate();
+            } else {
+                cancelAnimationFrame(animationId);
+            }
+        }
+
+        // 事件处理
+        function handleResize() {
+            canvas.width = window.innerWidth - 300;
+            canvas.height = window.innerHeight;
+        }
+
+        function updateAngle(θ) {
+            currentAngle = θ;
+            document.getElementById('angleSlider').value = θ;
+            document.getElementById('angleInput').value = θ.toFixed(2);
+            draw(θ);
+        }
+
+        function setAngle(θ) {
+            updateAngle(θ);
+            if (isAnimating) toggleAnimation();
+        }
+
+        // 初始化
+        initCanvas();
+        draw(0);
+
+        // 绑定事件监听器
+        document.getElementById('angleSlider').addEventListener('input', (e) => {
+            updateAngle(parseFloat(e.target.value));
+        });
+
+        document.getElementById('angleInput').addEventListener('change', (e) => {
+            updateAngle(parseFloat(e.target.value));
+        });
+    </script>
+</body>
+</html>

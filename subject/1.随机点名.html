@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>随机点名系统</title>
+    <style>
+        body { text-align: center; padding: 20px; }
+        input { width: 300px; padding: 10px; margin: 10px; }
+        button { padding: 10px 20px; background: #4CAF50; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h2>学生随机点名系统</h2>
+    
+    <!-- 学生名单输入框 -->
+    <input type="text" 
+           id="studentList" 
+           placeholder="请输入学生姓名，用逗号分隔（例如：张三,李四）"
+           value="张三,李四,王五,赵六"><!-- 默认示例值 -->
+
+    <br>
+    
+    <!-- 随机点名按钮 -->
+    <button onclick="randomPick()">随机点名</button>
+    
+    <!-- 结果显示区域 -->
+    <div id="result" style="font-size: 24px; margin-top: 20px;"></div>
+
+    <script>
+        function randomPick() {
+            // 获取输入框内容并分割为数组
+            const input = document.getElementById('studentList').value;
+            const names = input.split(',')
+                               .map(name => name.trim())
+                               .filter(name => name.length > 0); // 去除空姓名 [[10]]
+            
+            if (names.length === 0) {
+                alert("请输入有效的学生姓名！");
+                return;
+            }
+
+            // 生成随机索引
+            const randomIndex = Math.floor(Math.random() * names.length); // [[9]]
+            
+            // 显示结果
+            document.getElementById('result').innerHTML = 
+                `🎉 随机选中的学生是：<strong>${names[randomIndex]}</strong>`;
+        }
+    </script>
+</body>
+</html>
