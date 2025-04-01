@@ -1,0 +1,92 @@
+#include <MPython.h>
+#include <DFRobot_Iot.h>
+#include <DFRobot_Task.h>
+#include <DFRobot_Heartrate.h>
+#include <DFRobot_HTTPClient.h>
+
+// 动态变量
+String mind_s_server;
+uint16_t lastRate1 = 0;
+uint16_t lastRate2 = 0;
+unsigned long lastSendTime1 = 0;
+unsigned long lastSendTime2 = 0;
+const unsigned long SEND_INTERVAL = 100; // 发送间隔1秒
+
+newTask(loop2)
+newTask(loop1)
+
+// 创建对象
+DFRobot_Iot        myIot;
+DFRobot_HTTPClient http;
+DFRobot_Heartrate  heartrate1;  // 为每个传感器创建独立对象
+DFRobot_Heartrate  heartrate2;
+
+// 主程序开始
+void setup() {
+    mPython.begin();
+    http.init();  // 只在主程序初始化一次
+    myIot.wifiConnect("aimaker", "aimaker123");
+    while (!myIot.wifiStatus()) {yield();}
+    mind_s_server = "http://10.97.3.185:5000";
+    display.setCursor(42, 41);
+    display.print(myIot.getWiFiLocalIP());
+    
+    taskStart(loop1);
+    taskStart(loop2);
+}
+
+void loop() {
+    // 主线程只处理按钮事件
+    if (buttonB.isPressed()) {
+        http.GET(mind_s_server + "/player_action?player=player2", 1);
+        delay(50);  // 防抖
+    }
+    if (buttonA.isPressed()) {
+        http.GET(mind_s_server + "/player_action?player=player1", 1);
+        delay(50);  // 防抖
+    }
+    delay(10);
+}
+
+// 子线程2程序
+void loop2::setup() {
+    heartrate2.begin(DIGITAL_MODE);
+}
+
+void loop2::loop() {
+    uint16_t currentRate = heartrate2.getRate(P1);
+    unsigned long currentTime = millis();
+    
+    // 只发送有效的心率值，并控制发送频率
+    if (currentRate >= 0 && currentRate < 200 && 
+        currentTime - lastSendTime2 >= SEND_INTERVAL) {
+        String url = mind_s_server + "/update_heart_rate?player=player2&heart_rate=" + String(currentRate);
+        http.GET(url, 1);
+        lastSendTime2 = currentTime;
+        
+        // 更新显示
+        display.setCursor(42, 0);
+        display.print(currentRate);
+        display.print("   ");  // 清除旧数字
+    }
+    delay(100);
+}
+
+// 子线程1程序
+void loop1::setup() {
+    heartrate1.begin(DIGITAL_MODE);
+}
+
+void loop1::loop() {
+    uint16_t currentRate = heartrate1.getRate(P0);
+    unsigned long currentTime = millis();
+    
+    // 只发送有效的心率值，并控制发送频率
+    if (currentRate >= 0 && currentRate < 200 && 
+        currentTime - lastSendTime1 >= SEND_INTERVAL) {
+        String url = mind_s_server + "/update_heart_rate?player=player1&heart_rate=" + String(currentRate);
+        http.GET(url, 1);
+        lastSendTime1 = currentTime;
+    }
+    delay(100);
+}
