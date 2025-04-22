@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>小球下落实验平台</title>
+    <style>
+        /* 新增刻度尺样式 */
+        .container { display: flex; height: 100vh; }
+        .left-panel { flex: 1; padding: 20px; background: #f0f0f0; position: relative; }
+        .simulation-area { height: 500px; width: 300px; border: 1px solid #ccc; position: relative; overflow: hidden; }
+        #ball { width: 20px; height: 20px; background: red; border-radius: 50%; position: absolute; left: 140px; top: 0; transition: top 0.1s linear; }
+        #ruler { width: 40px; height: 500px; background: #f8f8f8; border-right: 3px solid #275efe; box-shadow: 2px 0 8px rgba(39,94,254,0.2); position: absolute; cursor: ns-resize; }
+        .ruler-marks { position: absolute; left: 35px; height: 100%; }
+        .mark { position: absolute; width: 15px; height: 1px; background: #666; font-size: 8px; }
+        .mark.main { width: 25px; height: 2px; background: #333; }
+        .right-panel { flex: 1; padding: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+        input { width: 80px; }
+        .controls { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="left-panel">
+            <div class="controls">
+                <button onclick="startExperiment()">开始下落</button>
+                <button onclick="pauseExperiment()">暂停</button>
+                <button onclick="resetExperiment()">重置</button>
+                <button onclick="recordMeasurement()">记录刻度</button>
+                <div id="timer">时间: 0.00s</div>
+            </div>
+            <div class="simulation-area" id="simArea">
+                <div id="ball"></div>
+                <div id="ruler"></div>
+            </div>
+        </div>
+        <div class="right-panel">
+            <h3>实验数据记录</h3>
+            <table id="dataTable">
+                <tr><th>时间 (s)</th><th>距离 (m)</th></tr>
+            </table>
+            <button onclick="exportCSV()">导出CSV</button>
+        </div>
+    </div>
+
+<script>
+    // 物理模拟参数
+    let startTime, animationId, isPaused = false;
+    let lastElapsedTime = 0; // 记录暂停时的已经过时间
+    const g = 9.8; // m/s²
+    const pxPerMeter = 100; // 100px对应1米
+
+    // 初始化刻度尺
+    function createRulerMarks() {
+        const ruler = document.getElementById('ruler');
+        for (let i = 0; i <= 500; i += 10) { // 每10px（10cm）一个刻度
+            const mark = document.createElement('div');
+            mark.className = `mark ${i % 100 === 0 ? 'main' : ''}`;
+            mark.style.top = `${i}px`;
+            if (i % 100 === 0) {
+                mark.innerHTML = `<div style="position:absolute;left:20px">${i/100}m</div>`;
+            }
+            ruler.appendChild(mark);
+        }
+    }
+
+    // 小球动画
+    function animate() {
+        const currentElapsed = (Date.now() - startTime) / 1000;
+        const elapsed = lastElapsedTime + currentElapsed;
+        const distance = 0.5 * g * elapsed * elapsed;
+        
+        document.getElementById('ball').style.top = 
+            Math.min(distance * pxPerMeter, 480) + 'px';
+        document.getElementById('timer').textContent = `时间: ${elapsed.toFixed(2)}s`;
+        
+        if (distance < 5) animationId = requestAnimationFrame(animate);
+    }
+
+    // 数据记录功能
+    function recordMeasurement() {
+        const rulerPos = parseFloat(ruler.style.top || 0);
+        const distance = (rulerPos / pxPerMeter).toFixed(3);
+        
+        const inputs = document.querySelectorAll('#dataTable input[type="number"]');
+        for(let input of inputs) {
+            if(!input.value && input.parentElement.cellIndex === 1) {
+                input.value = distance;
+                break;
+            }
+        }
+    }
+
+    // 导出CSV
+    function exportCSV() {
+        let csvContent = "时间(s),距离(m)\n";
+        document.querySelectorAll("#dataTable tr:not(:first-child)").forEach(row => {
+            csvContent += `${row.cells[0].querySelector('input').value},${row.cells[1].querySelector('input').value}\n`;
+        });
+        
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(new Blob([csvContent], {type: 'text/csv'}));
+        link.download = "experiment_data.csv";
+        link.click();
+    }
+
+    // 初始化
+    window.onload = () => {
+        createRulerMarks();
+        // 尺子拖动事件处理
+        const ruler = document.getElementById('ruler');
+        let isDragging = false, startY;
+        ruler.addEventListener('mousedown', e => {
+            isDragging = true;
+            startY = e.clientY - ruler.offsetTop;
+        });
+        document.addEventListener('mousemove', e => {
+            if (!isDragging) return;
+            const newTop = Math.min(Math.max(e.clientY - startY, 0), 480);
+            ruler.style.top = newTop + 'px';
+        });
+        document.addEventListener('mouseup', () => isDragging = false);
+    };
+
+    // 控制函数
+    function startExperiment() { 
+        if (isPaused) {
+            // 继续从断点开始
+            startTime = Date.now();
+            isPaused = false;
+            animate();
+        } else {
+            // 新的实验
+            lastElapsedTime = 0;
+            startTime = Date.now();
+            animate();
+        }
+    }
+    
+    function pauseExperiment() { 
+        if (!isPaused) {
+            cancelAnimationFrame(animationId); 
+            isPaused = true; 
+            // 记录当前已经过的时间
+            const currentElapsed = (Date.now() - startTime) / 1000;
+            lastElapsedTime += currentElapsed;
+            addDataEntry(); 
+        }
+    }
+    
+    function resetExperiment() {
+        cancelAnimationFrame(animationId);
+        document.getElementById('ball').style.top = '0';
+        document.getElementById('timer').textContent = '时间: 0.00s';
+        lastElapsedTime = 0;
+        isPaused = false;
+    }
+    
+    function addDataEntry() {
+        const elapsed = lastElapsedTime;
+        document.getElementById('dataTable').insertRow(-1).innerHTML = `
+            <td><input type="number" step="0.01" value="${elapsed.toFixed(2)}"></td>
+            <td><input type="number" step="0.01"></td>`;
+    }
+</script>
+</body>
+</html>
