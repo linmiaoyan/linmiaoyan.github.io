@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小球下落实验模拟平台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            padding: 20px;
+            gap: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+        }
+
+        /* 实验区域样式 */
+        .experiment-area {
+            flex: 2;
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .ball {
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(145deg, #ff4444, #ff6666);
+            border-radius: 50%;
+            position: absolute;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: transform 0.016s linear;
+            box-shadow: 0 4px 15px rgba(255,68,68,0.3);
+        }
+
+        .ruler {
+            position: absolute;
+            top: 0;
+            right: 40px;  /* 固定在右侧 */
+            width: 30px;
+            height: 100%;
+            background: transparent;
+        }
+
+        .ruler-marks {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .ruler-mark {
+            position: absolute;
+            left: 0;
+            width: 10px;
+            height: 1px;
+            background: #666;
+        }
+
+        .ruler-mark.major {
+            width: 20px;
+            background: #444;
+        }
+
+        .ruler-label {
+            position: absolute;
+            left: 25px;
+            transform: translateY(-50%);
+            font-size: 12px;
+            color: #444;
+            font-weight: 500;
+        }
+
+        .ruler-line {
+            position: absolute;
+            right: 40px;
+            top: 0;
+            width: 2px;
+            height: 100%;
+            background: #666;
+        }
+
+        .eye-marker {
+            position: absolute;
+            right: 35px;
+            width: 20px;
+            height: 20px;
+            background: #2196F3;
+            border-radius: 50%;
+            cursor: ns-resize;
+            display: none;
+            box-shadow: 0 2px 8px rgba(33,150,243,0.3);
+            z-index: 100;
+        }
+
+        .eye-marker::before {
+            content: '👁️';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 12px;
+        }
+
+        .eye-value {
+            position: absolute;
+            right: 65px;
+            background: rgba(33,150,243,0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #1976D2;
+            display: none;
+        }
+
+        /* 数据记录区域样式 */
+        .data-area {
+            flex: 1;
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            background: #4CAF50;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            box-shadow: 0 4px 15px rgba(76,175,80,0.2);
+        }
+
+        button:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76,175,80,0.3);
+        }
+
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        #recordBtn {
+            display: none;  /* 隐藏记录按钮 */
+        }
+
+        #recordBtn {
+            background: #2196F3;
+            box-shadow: 0 4px 15px rgba(33,150,243,0.2);
+        }
+
+        #recordBtn:hover {
+            background: #1976D2;
+            box-shadow: 0 6px 20px rgba(33,150,243,0.3);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .data-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #444;
+        }
+
+        .data-table tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .data-table td:last-child {
+            display: flex;
+            gap: 8px;
+        }
+
+        .data-type {
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: #e3f2fd;
+            color: #1976D2;
+        }
+
+        .data-type.auto {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .data-type.temporary {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .delete-btn {
+            background: #ff4444;
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 6px;
+            box-shadow: 0 4px 15px rgba(255,68,68,0.2);
+        }
+
+        .delete-btn:hover {
+            background: #cc0000;
+            box-shadow: 0 6px 20px rgba(255,68,68,0.3);
+        }
+
+        .timer {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .instructions {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .instructions h3 {
+            margin-bottom: 15px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .instructions ol {
+            padding-left: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+            color: #555;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="experiment-area">
+            <div class="ball"></div>
+            <div class="ruler">
+                <div class="ruler-marks"></div>
+            </div>
+            <div class="eye-marker"></div>
+            <div class="eye-value">0.00m</div>
+            <div class="timer">0.00s</div>
+        </div>
+        <div class="data-area">
+            <div class="controls">
+                <button id="startBtn">下落</button>
+                <button id="resetBtn">重置</button>
+                <button id="exportBtn">导出CSV</button>
+            </div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>时间(s)</th>
+                        <th>距离(m)</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="dataTableBody"></tbody>
+            </table>
+            <div class="instructions">
+                <h3>使用说明</h3>
+                <ol>
+                    <li>点击"下落"按钮开始实验</li>
+                    <li>点击"暂停"按钮时，会自动记录时间并显示测量标记👀</li>
+                    <li>拖动测量标记👀到你认为合理的位置</li>
+                    <li>点击"下落"进行下一次测量</li>
+                    <li>点击"重置"按钮重置小球位置</li>
+                    <li>点击"导出CSV"保存实验数据</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class BallExperiment {
+            constructor() {
+                this.ball = document.querySelector('.ball');
+                this.ruler = document.querySelector('.ruler');
+                this.timer = document.querySelector('.timer');
+                this.startBtn = document.getElementById('startBtn');
+                this.resetBtn = document.getElementById('resetBtn');
+                this.exportBtn = document.getElementById('exportBtn');
+                this.dataTableBody = document.getElementById('dataTableBody');
+                this.eyeMarker = document.querySelector('.eye-marker');
+                this.eyeValue = document.querySelector('.eye-value');
+
+                this.g = 9.8;
+                this.startTime = 0;
+                this.currentTime = 0;
+                this.isRunning = false;
+                this.animationId = null;
+                this.experimentData = [];
+                this.isEyeMarkerVisible = false;
+                this.isDraggingEye = false;
+
+                this.initRuler();
+                this.initEventListeners();
+            }
+
+            initRuler() {
+                const rulerMarks = document.querySelector('.ruler-marks');
+                // 添加刻度线
+                const rulerLine = document.createElement('div');
+                rulerLine.className = 'ruler-line';
+                document.querySelector('.experiment-area').appendChild(rulerLine);
+
+                // 每10cm一个小刻度，每1m一个大刻度
+                for (let i = 0; i <= 1000; i += 10) {
+                    const mark = document.createElement('div');
+                    mark.className = 'ruler-mark' + (i % 100 === 0 ? ' major' : '');
+                    mark.style.top = `${i}px`;
+                    rulerMarks.appendChild(mark);
+
+                    if (i % 100 === 0) {
+                        const label = document.createElement('div');
+                        label.className = 'ruler-label';
+                        label.style.top = `${i}px`;
+                        label.textContent = `${i/100}m`;
+                        rulerMarks.appendChild(label);
+                    }
+                }
+            }
+
+            initEventListeners() {
+                this.startBtn.addEventListener('click', () => this.toggleExperiment());
+                this.resetBtn.addEventListener('click', () => this.reset());
+                this.exportBtn.addEventListener('click', () => this.exportData());
+
+                // 添加小眼睛拖动事件
+                this.eyeMarker.addEventListener('mousedown', (e) => this.startEyeDrag(e));
+                document.addEventListener('mousemove', (e) => this.dragEye(e));
+                document.addEventListener('mouseup', () => this.stopEyeDrag());
+            }
+
+            toggleExperiment() {
+                if (this.isRunning) {
+                    this.pause();
+                } else {
+                    this.start();
+                }
+            }
+
+            start() {
+                if (!this.isRunning) {
+                    // 如果小眼睛可见，更新最后一条数据
+                    if (this.isEyeMarkerVisible) {
+                        const eyeDistance = parseInt(this.eyeMarker.style.top) / 100;
+                        // 更新最后一条数据
+                        const lastData = this.experimentData[this.experimentData.length - 1];
+                        if (lastData && lastData.isTemporary) {
+                            lastData.distance = eyeDistance;
+                            lastData.isTemporary = false;
+                            this.updateDataTable();
+                        }
+                    }
+                    
+                    this.isRunning = true;
+                    this.startTime = performance.now() - this.currentTime * 1000;
+                    this.startBtn.textContent = '暂停';
+                    this.animate();
+                }
+            }
+
+            pause() {
+                this.isRunning = false;
+                this.startBtn.textContent = '下落';
+                cancelAnimationFrame(this.animationId);
+                
+                // 每次暂停时都显示小眼睛并记录数据
+                const ballRect = this.ball.getBoundingClientRect();
+                const experimentRect = document.querySelector('.experiment-area').getBoundingClientRect();
+                const distance = (ballRect.top - experimentRect.top) / 100;
+                
+                // 添加随机偏差（±5cm）
+                const randomOffset = (Math.random() - 0.5) * 0.1; // 生成-0.05到0.05之间的随机数
+                const adjustedDistance = distance + randomOffset;
+                
+                this.eyeMarker.style.display = 'block';
+                this.eyeValue.style.display = 'block';
+                this.eyeMarker.style.top = `${(adjustedDistance * 100)}px`;
+                this.isEyeMarkerVisible = true;
+                this.eyeValue.textContent = `${adjustedDistance.toFixed(2)}m`;
+
+                // 立即记录当前数据
+                this.experimentData.push({ 
+                    time: this.currentTime, 
+                    distance: adjustedDistance,
+                    isTemporary: true  // 标记为临时数据
+                });
+                this.updateDataTable();
+            }
+
+            reset() {
+                this.pause();
+                this.currentTime = 0;
+                this.ball.style.transform = 'translateX(-50%) translateY(0)';
+                this.timer.textContent = '0.00s';
+                this.eyeMarker.style.display = 'none';
+                this.eyeValue.style.display = 'none';
+                this.isEyeMarkerVisible = false;
+            }
+
+            animate() {
+                if (!this.isRunning) return;
+
+                this.currentTime = (performance.now() - this.startTime) / 1000;
+                if (this.currentTime > 10) {
+                    this.reset();
+                    return;
+                }
+
+                const distance = 0.5 * this.g * Math.pow(this.currentTime, 2);
+                const pixels = distance * 100;
+
+                this.ball.style.transform = `translateX(-50%) translateY(${pixels}px)`;
+                this.timer.textContent = `${this.currentTime.toFixed(2)}s`;
+
+                this.animationId = requestAnimationFrame(() => this.animate());
+            }
+
+            startEyeDrag(e) {
+                this.isDraggingEye = true;
+                this.dragStartY = e.clientY;
+                this.eyeStartY = parseInt(this.eyeMarker.style.top) || 0;
+            }
+
+            dragEye(e) {
+                if (!this.isDraggingEye) return;
+                const rect = this.eyeMarker.parentElement.getBoundingClientRect();
+                const deltaY = e.clientY - this.dragStartY;
+                const newY = Math.max(0, Math.min(this.eyeStartY + deltaY, rect.height));
+                this.eyeMarker.style.top = `${newY}px`;
+                
+                // 更新小眼睛位置的值显示
+                const distance = newY / 100;
+                this.eyeValue.textContent = `${distance.toFixed(2)}m`;
+
+                // 实时更新表格中的距离数据
+                const lastData = this.experimentData[this.experimentData.length - 1];
+                if (lastData && lastData.isTemporary) {
+                    lastData.distance = distance;
+                    this.updateDataTable();
+                }
+            }
+
+            stopEyeDrag() {
+                this.isDraggingEye = false;
+            }
+
+            updateDataTable() {
+                this.dataTableBody.innerHTML = '';
+                this.experimentData.forEach((data, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${data.time.toFixed(2)}</td>
+                        <td>${data.distance.toFixed(2)}</td>
+                        <td>
+                            ${data.isTemporary ? '<span class="data-type temporary">测量中，继续下落后确定数据</span>' : ''}
+                            <button class="delete-btn" onclick="experiment.deleteData(${index})">删除</button>
+                        </td>
+                    `;
+                    this.dataTableBody.appendChild(row);
+                });
+            }
+
+            deleteData(index) {
+                this.experimentData.splice(index, 1);
+                this.updateDataTable();
+            }
+
+            exportData() {
+                const headers = ['time(s)', 'dist(m)'];
+                const csvContent = [
+                    headers.join(','),
+                    ...this.experimentData.map(data => 
+                        `${data.time.toFixed(2)},${data.distance.toFixed(2)}`
+                    )
+                ].join('\n');
+
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'experiment_data.csv';
+                link.click();
+            }
+        }
+
+        const experiment = new BallExperiment();
+    </script>
+</body>
+</html>
