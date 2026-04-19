@@ -30,36 +30,33 @@
       print-color-adjust: exact;
     }
 
-    /* 屏幕预览：把固定 mm 画幅整体缩放进视口，避免「超级宽」与横向滚动（打印不受影响） */
+    /* 屏幕：流式宽度，两列随窗口变宽/变窄成比例缩放；打印见 @media print */
     .poster-stage {
       width: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding: 12px 0 24px;
       box-sizing: border-box;
+      padding: 12px 16px 28px;
       overflow-x: hidden;
     }
 
     .sheet {
-      width: var(--paper-w);
-      min-height: var(--paper-h);
-      margin: 0;
+      --sheet-pad: clamp(10px, 2.2vw, 22px);
+      width: 100%;
+      max-width: 100%;
+      margin: 0 auto;
+      min-height: 0;
       background: var(--bg);
       box-shadow: 0 8px 32px rgba(0,0,0,.35);
-      padding: var(--pad);
+      padding: var(--sheet-pad);
       position: relative;
-      flex-shrink: 0;
-      transform-origin: top center;
     }
 
     /* 顶部装饰线 */
     .sheet::before {
       content: "";
       position: absolute;
-      left: var(--pad);
-      right: var(--pad);
-      top: calc(var(--pad) + 2mm);
+      left: var(--sheet-pad);
+      right: var(--sheet-pad);
+      top: calc(var(--sheet-pad) + 2px);
       height: 3px;
       background: linear-gradient(90deg, var(--accent), #3d8a78 40%, var(--accent2));
       border-radius: 2px;
@@ -67,14 +64,14 @@
 
     .title-block {
       text-align: center;
-      padding: 6mm 8mm 8mm;
+      padding: clamp(8px, 1.8vw, 18px) clamp(6px, 1.5vw, 14px) clamp(10px, 2vw, 18px);
       border-bottom: 1px solid var(--line);
-      margin-bottom: var(--gap);
+      margin-bottom: clamp(8px, 1.5vw, 14px);
     }
 
     .title-block h1 {
-      margin: 0 0 4mm;
-      font-size: 42pt;
+      margin: 0 0 clamp(6px, 1.2vw, 12px);
+      font-size: clamp(1.35rem, 4.2vw, 2.65rem);
       line-height: 1.15;
       font-weight: 800;
       letter-spacing: 0.02em;
@@ -82,102 +79,103 @@
 
     .title-block .subtitle {
       margin: 0;
-      font-size: 18pt;
+      font-size: clamp(0.92rem, 2vw, 1.35rem);
       color: var(--muted);
       font-weight: 500;
       line-height: 1.35;
     }
 
     .title-block .tags {
-      margin-top: 5mm;
-      font-size: 12pt;
+      margin-top: clamp(6px, 1.2vw, 12px);
+      font-size: clamp(0.72rem, 1.35vw, 0.95rem);
       color: var(--accent);
       letter-spacing: 0.08em;
     }
 
     .grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: var(--gap);
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: clamp(8px, 1.6vw, 14px);
       align-items: start;
     }
 
-    .col { display: flex; flex-direction: column; gap: var(--gap); }
+    .col { display: flex; flex-direction: column; gap: clamp(8px, 1.6vw, 14px); }
 
     section.card {
       background: var(--card);
       border: 1px solid var(--line);
       border-radius: 4px;
-      padding: 5mm 6mm;
+      padding: clamp(8px, 1.5vw, 14px) clamp(9px, 1.7vw, 16px);
+      min-width: 0;
     }
 
     section.card h2 {
-      margin: 0 0 3mm;
-      font-size: 16pt;
+      margin: 0 0 clamp(4px, 0.9vw, 8px);
+      font-size: clamp(0.98rem, 2.1vw, 1.35rem);
       color: var(--accent);
-      border-left: 4px solid var(--accent2);
-      padding-left: 3mm;
+      border-left: clamp(3px, 0.5vw, 5px) solid var(--accent2);
+      padding-left: clamp(6px, 1.1vw, 10px);
       line-height: 1.2;
     }
 
     section.card p, section.card li {
-      margin: 0 0 2.5mm;
-      font-size: 13.5pt;
+      margin: 0 0 clamp(6px, 1.1vw, 10px);
+      font-size: clamp(0.82rem, 1.65vw, 1.08rem);
       line-height: 1.45;
       color: var(--ink);
     }
 
     section.card ul {
       margin: 0;
-      padding-left: 5mm;
+      padding-left: clamp(14px, 2.5vw, 22px);
     }
 
-    section.card li { margin-bottom: 1.5mm; }
+    section.card li { margin-bottom: clamp(4px, 0.7vw, 7px); }
 
-    .muted { color: var(--muted); font-size: 12pt; }
+    .muted { color: var(--muted); font-size: clamp(0.78rem, 1.45vw, 1rem); }
 
     /* 流程条 */
     .flow {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      gap: 2mm 1mm;
-      margin-top: 2mm;
-      font-size: 12pt;
+      gap: clamp(4px, 0.8vw, 8px) clamp(2px, 0.4vw, 5px);
+      margin-top: clamp(4px, 0.8vw, 8px);
+      font-size: clamp(0.72rem, 1.45vw, 0.98rem);
     }
 
     .flow span.step {
       background: #eef6f3;
       border: 1px solid #a8cfc4;
-      padding: 2mm 3mm;
+      padding: clamp(3px, 0.6vw, 7px) clamp(5px, 1vw, 10px);
       border-radius: 3px;
       white-space: nowrap;
     }
 
-    .flow span.arrow { color: var(--accent2); font-weight: bold; padding: 0 1mm; }
+    .flow span.arrow { color: var(--accent2); font-weight: bold; padding: 0 clamp(2px, 0.4vw, 5px); }
 
     /* 功能三列 */
     .features {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 3mm;
+      gap: clamp(6px, 1.1vw, 10px);
     }
 
     .feat {
       border-left: 3px solid #d4c4a8;
-      padding-left: 3mm;
+      padding-left: clamp(6px, 1.1vw, 10px);
     }
 
     .feat strong {
       display: block;
-      font-size: 13.5pt;
+      font-size: clamp(0.85rem, 1.65vw, 1.08rem);
       color: var(--accent2);
-      margin-bottom: 1mm;
+      margin-bottom: clamp(2px, 0.4vw, 5px);
     }
 
     /* 图片占位 */
     figure.ph {
-      margin: 3mm 0 0;
+      margin: clamp(6px, 1.1vw, 10px) 0 0;
       border: 1px dashed #b0a080;
       background: repeating-linear-gradient(
         -45deg,
@@ -187,16 +185,16 @@
         #f3ece0 12px
       );
       border-radius: 3px;
-      min-height: 38mm;
+      min-height: clamp(88px, 18vw, 180px);
       display: flex;
       align-items: center;
       justify-content: center;
       text-align: center;
-      padding: 4mm;
+      padding: clamp(8px, 1.5vw, 14px);
     }
 
     figure.ph figcaption {
-      font-size: 11.5pt;
+      font-size: clamp(0.74rem, 1.4vw, 0.95rem);
       color: var(--muted);
       line-height: 1.35;
     }
@@ -204,27 +202,38 @@
     .demo-steps {
       display: flex;
       flex-wrap: wrap;
-      gap: 2mm;
-      margin-top: 2mm;
-      font-size: 12.5pt;
+      gap: clamp(4px, 0.8vw, 8px);
+      margin-top: clamp(4px, 0.8vw, 8px);
+      font-size: clamp(0.74rem, 1.5vw, 1rem);
     }
 
     .demo-steps span {
       background: #fff8e7;
       border: 1px solid #e0c97a;
-      padding: 2mm 3mm;
+      padding: clamp(3px, 0.6vw, 7px) clamp(5px, 1vw, 10px);
       border-radius: 3px;
     }
 
     footer.bar {
-      margin-top: var(--gap);
-      padding-top: 4mm;
+      margin-top: clamp(8px, 1.6vw, 14px);
+      padding-top: clamp(8px, 1.4vw, 12px);
       border-top: 1px solid var(--line);
-      font-size: 11.5pt;
+      font-size: clamp(0.72rem, 1.4vw, 0.95rem);
       color: var(--muted);
     }
 
     footer.bar .kw { color: var(--ink); font-weight: 600; }
+
+    .card-gap-top {
+      margin-top: clamp(8px, 1.4vw, 12px) !important;
+    }
+
+    /* 极窄窗口改为单列，避免两列过挤（打印不受影响） */
+    @media screen and (max-width: 520px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
 
     .hint-screen {
       max-width: min(920px, calc(100vw - 24px));
@@ -244,16 +253,65 @@
         padding: 0;
         overflow: visible;
         display: block;
-        height: auto !important;
         width: 100% !important;
       }
       .sheet {
+        width: var(--paper-w) !important;
+        max-width: none !important;
+        min-height: var(--paper-h) !important;
         margin: 0;
+        --sheet-pad: var(--pad);
+        padding: var(--pad) !important;
         box-shadow: none;
         page-break-after: always;
-        transform: none !important;
-        transform-origin: top center !important;
       }
+      .title-block {
+        padding: 6mm 8mm 8mm !important;
+        margin-bottom: var(--gap) !important;
+      }
+      .title-block h1 {
+        font-size: 42pt !important;
+        margin: 0 0 4mm !important;
+      }
+      .title-block .subtitle { font-size: 18pt !important; }
+      .title-block .tags { font-size: 12pt !important; margin-top: 5mm !important; }
+      .grid {
+        gap: var(--gap) !important;
+        grid-template-columns: 1fr 1fr !important;
+      }
+      .col { gap: var(--gap) !important; }
+      section.card {
+        padding: 5mm 6mm !important;
+      }
+      section.card h2 {
+        font-size: 16pt !important;
+        margin: 0 0 3mm !important;
+        padding-left: 3mm !important;
+        border-left-width: 4px !important;
+      }
+      section.card p, section.card li {
+        font-size: 13.5pt !important;
+        margin: 0 0 2.5mm !important;
+      }
+      section.card ul { padding-left: 5mm !important; }
+      .muted { font-size: 12pt !important; }
+      .flow { font-size: 12pt !important; margin-top: 2mm !important; }
+      .flow span.step { padding: 2mm 3mm !important; white-space: nowrap !important; }
+      .feat strong { font-size: 13.5pt !important; }
+      figure.ph {
+        min-height: 38mm !important;
+        padding: 4mm !important;
+        margin-top: 3mm !important;
+      }
+      figure.ph figcaption { font-size: 11.5pt !important; }
+      .demo-steps { font-size: 12.5pt !important; }
+      .demo-steps span { padding: 2mm 3mm !important; }
+      footer.bar {
+        margin-top: var(--gap) !important;
+        padding-top: 4mm !important;
+        font-size: 11.5pt !important;
+      }
+      .card-gap-top { margin-top: 3mm !important; }
     }
 
     @page {
@@ -268,12 +326,12 @@
 <body>
 
   <div class="hint-screen">
-    <strong>屏幕预览：</strong>页面已自动按窗口宽度缩放整张展板，竖版比例不变；若仍偏小，可拉大浏览器窗口或按 Ctrl + 鼠标滚轮调整页面缩放。<br />
+    <strong>屏幕预览：</strong>展板宽度随浏览器窗口变化，中间两列始终各占一半并同步缩放字号与间距；拉宽窗口可「放大」预览，缩窄则整体变小。<br />
     <strong>打印说明：</strong>使用 Chrome / Edge 打开 → Ctrl+P → 目标选「另存为 PDF」→ 纸张大小选「900×1050 mm」（若无则选「自定义」并填入 900×1050 mm）→ 边距选「无」→ 开启「背景图形」。将你自己的作品截图、界面图替换下方灰色占位区域（可把 &lt;figure class="ph"&gt; 换成 &lt;img&gt;）。
   </div>
 
-  <div class="poster-stage" id="poster-stage">
-  <main class="sheet" role="main" id="poster-sheet">
+  <div class="poster-stage">
+  <main class="sheet" role="main">
 
     <header class="title-block">
       <h1>AI 助力瓯塑：基于机器学习的配色辅助系统设计与实现</h1>
@@ -302,7 +360,7 @@
             <span class="step">KM + 深度学习</span><span class="arrow">→</span>
             <span class="step">Web 服务与 3D 呈现</span>
           </div>
-          <p style="margin-top:3mm">采用多阶段建模策略：在经典机器学习与集成方法基础上，引入 <strong>Kubelka–Munk 光学配色思想</strong>与<strong>深度学习（如 Transformer）</strong>提升复杂颜色映射能力；后端以轻量服务封装推理，前端结合三维引擎实现交互预览。</p>
+          <p class="card-gap-top">采用多阶段建模策略：在经典机器学习与集成方法基础上，引入 <strong>Kubelka–Munk 光学配色思想</strong>与<strong>深度学习（如 Transformer）</strong>提升复杂颜色映射能力；后端以轻量服务封装推理，前端结合三维引擎实现交互预览。</p>
         </section>
 
         <section class="card" aria-labelledby="sec-data">
@@ -349,7 +407,7 @@
             <span>3 生成配比建议</span>
             <span>4 三维预览与调整</span>
           </div>
-          <p style="margin-top:3mm">适用于山水、花鸟等主题创作：先确定画面主色与局部目标色，再获得配比与立体预览，缩短试错周期。</p>
+          <p class="card-gap-top">适用于山水、花鸟等主题创作：先确定画面主色与局部目标色，再获得配比与立体预览，缩短试错周期。</p>
           <figure class="ph">
             <figcaption>【此处放置】演示案例效果图（同一画面：原图 / 配色结果 / 3D 预览其一即可）</figcaption>
           </figure>
@@ -368,41 +426,5 @@
     </footer>
   </main>
   </div>
-
-  <script>
-    (function () {
-      var stage = document.getElementById("poster-stage");
-      var sheet = document.getElementById("poster-sheet");
-      if (!stage || !sheet) return;
-
-      function fitPosterToViewport() {
-        if (window.matchMedia && window.matchMedia("print").matches) return;
-
-        sheet.style.transform = "";
-        sheet.style.transformOrigin = "";
-        stage.style.height = "";
-
-        var margin = 32;
-        var maxW = Math.max(200, window.innerWidth - margin);
-        var naturalW = sheet.offsetWidth;
-        if (!naturalW) return;
-
-        var scale = Math.min(1, maxW / naturalW);
-        sheet.style.transformOrigin = "top center";
-        sheet.style.transform = "scale(" + scale + ")";
-        stage.style.height = Math.ceil(sheet.offsetHeight * scale) + "px";
-      }
-
-      window.addEventListener("resize", function () {
-        window.requestAnimationFrame(fitPosterToViewport);
-      });
-      window.addEventListener("orientationchange", fitPosterToViewport);
-      if (document.fonts && document.fonts.ready) {
-        document.fonts.ready.then(fitPosterToViewport);
-      }
-      window.addEventListener("load", fitPosterToViewport);
-      fitPosterToViewport();
-    })();
-  </script>
 </body>
 </html>
