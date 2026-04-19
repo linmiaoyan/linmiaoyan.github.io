@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>瓯塑配色辅助系统 — 省赛展板（内容区 900×1050mm）</title>
+  <style>
+    /* ========= 展板尺寸：内容区 900mm × 1050mm（不含组委会统一抬头约 150mm） ========= */
+    :root {
+      --paper-w: 900mm;
+      --paper-h: 1050mm;
+      --pad: 14mm;
+      --gap: 10mm;
+      --ink: #1a1a1a;
+      --muted: #4a4a4a;
+      --line: #c9b8a0;
+      --bg: #f7f2e9;
+      --card: #fffdf8;
+      --accent: #2d6a5d;
+      --accent2: #8b6914;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      background: #555;
+      color: var(--ink);
+      font-family: "Noto Sans SC", "Source Han Sans SC", "Microsoft YaHei", "PingFang SC", sans-serif;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .sheet {
+      width: var(--paper-w);
+      min-height: var(--paper-h);
+      margin: 12px auto;
+      background: var(--bg);
+      box-shadow: 0 8px 32px rgba(0,0,0,.35);
+      padding: var(--pad);
+      position: relative;
+    }
+
+    /* 顶部装饰线 */
+    .sheet::before {
+      content: "";
+      position: absolute;
+      left: var(--pad);
+      right: var(--pad);
+      top: calc(var(--pad) + 2mm);
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), #3d8a78 40%, var(--accent2));
+      border-radius: 2px;
+    }
+
+    .title-block {
+      text-align: center;
+      padding: 6mm 8mm 8mm;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: var(--gap);
+    }
+
+    .title-block h1 {
+      margin: 0 0 4mm;
+      font-size: 42pt;
+      line-height: 1.15;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+
+    .title-block .subtitle {
+      margin: 0;
+      font-size: 18pt;
+      color: var(--muted);
+      font-weight: 500;
+      line-height: 1.35;
+    }
+
+    .title-block .tags {
+      margin-top: 5mm;
+      font-size: 12pt;
+      color: var(--accent);
+      letter-spacing: 0.08em;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--gap);
+      align-items: start;
+    }
+
+    .col { display: flex; flex-direction: column; gap: var(--gap); }
+
+    section.card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 5mm 6mm;
+    }
+
+    section.card h2 {
+      margin: 0 0 3mm;
+      font-size: 16pt;
+      color: var(--accent);
+      border-left: 4px solid var(--accent2);
+      padding-left: 3mm;
+      line-height: 1.2;
+    }
+
+    section.card p, section.card li {
+      margin: 0 0 2.5mm;
+      font-size: 13.5pt;
+      line-height: 1.45;
+      color: var(--ink);
+    }
+
+    section.card ul {
+      margin: 0;
+      padding-left: 5mm;
+    }
+
+    section.card li { margin-bottom: 1.5mm; }
+
+    .muted { color: var(--muted); font-size: 12pt; }
+
+    /* 流程条 */
+    .flow {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 2mm 1mm;
+      margin-top: 2mm;
+      font-size: 12pt;
+    }
+
+    .flow span.step {
+      background: #eef6f3;
+      border: 1px solid #a8cfc4;
+      padding: 2mm 3mm;
+      border-radius: 3px;
+      white-space: nowrap;
+    }
+
+    .flow span.arrow { color: var(--accent2); font-weight: bold; padding: 0 1mm; }
+
+    /* 功能三列 */
+    .features {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 3mm;
+    }
+
+    .feat {
+      border-left: 3px solid #d4c4a8;
+      padding-left: 3mm;
+    }
+
+    .feat strong {
+      display: block;
+      font-size: 13.5pt;
+      color: var(--accent2);
+      margin-bottom: 1mm;
+    }
+
+    /* 图片占位 */
+    figure.ph {
+      margin: 3mm 0 0;
+      border: 1px dashed #b0a080;
+      background: repeating-linear-gradient(
+        -45deg,
+        #faf6ef,
+        #faf6ef 6px,
+        #f3ece0 6px,
+        #f3ece0 12px
+      );
+      border-radius: 3px;
+      min-height: 38mm;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 4mm;
+    }
+
+    figure.ph figcaption {
+      font-size: 11.5pt;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .demo-steps {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2mm;
+      margin-top: 2mm;
+      font-size: 12.5pt;
+    }
+
+    .demo-steps span {
+      background: #fff8e7;
+      border: 1px solid #e0c97a;
+      padding: 2mm 3mm;
+      border-radius: 3px;
+    }
+
+    footer.bar {
+      margin-top: var(--gap);
+      padding-top: 4mm;
+      border-top: 1px solid var(--line);
+      font-size: 11.5pt;
+      color: var(--muted);
+    }
+
+    footer.bar .kw { color: var(--ink); font-weight: 600; }
+
+    .hint-screen {
+      max-width: var(--paper-w);
+      margin: 8px auto 16px;
+      padding: 8px 12px;
+      background: #333;
+      color: #eee;
+      font-size: 13px;
+      border-radius: 6px;
+      line-height: 1.5;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .hint-screen { display: none !important; }
+      .sheet {
+        margin: 0;
+        box-shadow: none;
+        page-break-after: always;
+      }
+    }
+
+    @page {
+      size: 900mm 1050mm;
+      margin: 0;
+    }
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <div class="hint-screen">
+    <strong>打印说明：</strong>使用 Chrome / Edge 打开 → Ctrl+P → 目标选「另存为 PDF」→ 纸张大小选「900×1050 mm」（若无则选「自定义」并填入 900×1050 mm）→ 边距选「无」→ 开启「背景图形」。将你自己的作品截图、界面图替换下方灰色占位区域（可把 &lt;figure class="ph"&gt; 换成 &lt;img&gt;）。
+  </div>
+
+  <main class="sheet" role="main">
+
+    <header class="title-block">
+      <h1>AI 助力瓯塑：基于机器学习的配色辅助系统设计与实现</h1>
+      <p class="subtitle">以 RGB 色彩特征与瓯泥配比学习为核心，构建「数据采集 — 模型推理 — 三维可视化」一体化的创作辅助工具</p>
+      <p class="tags">传统工艺数字化 · 智能配色 · 交互式三维预览</p>
+    </header>
+
+    <div class="grid">
+      <div class="col">
+
+        <section class="card" aria-labelledby="sec-bg">
+          <h2 id="sec-bg">研究背景与问题</h2>
+          <p>瓯塑是浙江温州特色的堆塑类传统工艺，色彩层次丰富、文化价值突出。长期以来，配色高度依赖经验传承，存在<strong>知识难标准化、学习效率与作品色彩一致性受限</strong>等问题。</p>
+          <p class="muted">本研究将可复现的数据与机器学习引入配色环节，使「目标色 → 多色瓯泥配比」由经验判断转为可辅助、可迭代的决策支持。</p>
+          <figure class="ph">
+            <figcaption>【此处放置】经典瓯塑作品照片（建议横构图、光线均匀）</figcaption>
+          </figure>
+        </section>
+
+        <section class="card" aria-labelledby="sec-route">
+          <h2 id="sec-route">技术路线</h2>
+          <div class="flow" aria-label="技术流程">
+            <span class="step">图像采集</span><span class="arrow">→</span>
+            <span class="step">区域 RGB 特征</span><span class="arrow">→</span>
+            <span class="step">配比标注学习</span><span class="arrow">→</span>
+            <span class="step">KM + 深度学习</span><span class="arrow">→</span>
+            <span class="step">Web 服务与 3D 呈现</span>
+          </div>
+          <p style="margin-top:3mm">采用多阶段建模策略：在经典机器学习与集成方法基础上，引入 <strong>Kubelka–Munk 光学配色思想</strong>与<strong>深度学习（如 Transformer）</strong>提升复杂颜色映射能力；后端以轻量服务封装推理，前端结合三维引擎实现交互预览。</p>
+        </section>
+
+        <section class="card" aria-labelledby="sec-data">
+          <h2 id="sec-data">数据与实验要点</h2>
+          <ul>
+            <li><strong>材料路线</strong>：采用多色瓯泥直接混合方案，保证可塑性与色彩稳定性。</li>
+            <li><strong>色彩提取</strong>：用户框选区域，取中心 5×5 像素 RGB 均值作为代表色，降低噪声。</li>
+            <li><strong>数据集</strong>：构建多色瓯泥图像与配比标签（CSV），并针对难拟合颜色持续补样与迭代训练。</li>
+          </ul>
+          <figure class="ph">
+            <figcaption>【此处放置】原材料照片 / 颜色采集工具界面截图</figcaption>
+          </figure>
+        </section>
+      </div>
+
+      <div class="col">
+
+        <section class="card" aria-labelledby="sec-sys">
+          <h2 id="sec-sys">系统功能（2.0）</h2>
+          <div class="features">
+            <div class="feat">
+              <strong>多元化导入</strong>
+              支持图片、三维模型及内置范例，覆盖「有素材 / 无素材」两类使用场景。
+            </div>
+            <div class="feat">
+              <strong>智能色彩提取与配比生成</strong>
+              在模型辅助下提取目标色并输出多色瓯泥占比建议，形成可执行的调配参考。
+            </div>
+            <div class="feat">
+              <strong>平面到立体的可视化</strong>
+              将设计稿转换为可交互的三维模型，并把色彩映射到表面，便于多角度审视创作效果。
+            </div>
+          </div>
+          <figure class="ph">
+            <figcaption>【此处放置】系统主界面 / 取色器页面截图（一至两张拼合）</figcaption>
+          </figure>
+        </section>
+
+        <section class="card" aria-labelledby="sec-demo">
+          <h2 id="sec-demo">应用演示流程</h2>
+          <div class="demo-steps">
+            <span>1 导入图像或范例</span>
+            <span>2 选取目标色区</span>
+            <span>3 生成配比建议</span>
+            <span>4 三维预览与调整</span>
+          </div>
+          <p style="margin-top:3mm">适用于山水、花鸟等主题创作：先确定画面主色与局部目标色，再获得配比与立体预览，缩短试错周期。</p>
+          <figure class="ph">
+            <figcaption>【此处放置】演示案例效果图（同一画面：原图 / 配色结果 / 3D 预览其一即可）</figcaption>
+          </figure>
+        </section>
+
+        <section class="card" aria-labelledby="sec-value">
+          <h2 id="sec-value">结果与价值</h2>
+          <p>系统完成端到端验证：<strong>色彩提取、配比推荐、三维预览与交互界面</strong>联动可用。经多阶段建模与数据扩充，预测配比与目标色的<strong>视觉一致性</strong>较初期方案显著提升。</p>
+          <p class="muted">价值：降低瓯塑配色学习门槛，提升创作效率，为非遗数字化保护与教学传播提供可复用的技术路径。后续将扩大样本与场景覆盖，增强复杂光照与复合色条件下的稳健性。</p>
+        </section>
+      </div>
+    </div>
+
+    <footer class="bar">
+      <p><span class="kw">关键词：</span>瓯塑艺术；机器学习；色彩分析；智能配色；传统工艺数字化</p>
+    </footer>
+  </main>
+</body>
+</html>
