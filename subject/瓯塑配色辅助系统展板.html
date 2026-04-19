@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>瓯塑配色辅助系统 — 省赛展板（内容区 900×1050mm）</title>
   <style>
     /* ========= 展板尺寸：内容区 900mm × 1050mm（不含组委会统一抬头约 150mm） ========= */
@@ -30,14 +30,27 @@
       print-color-adjust: exact;
     }
 
+    /* 屏幕预览：把固定 mm 画幅整体缩放进视口，避免「超级宽」与横向滚动（打印不受影响） */
+    .poster-stage {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 12px 0 24px;
+      box-sizing: border-box;
+      overflow-x: hidden;
+    }
+
     .sheet {
       width: var(--paper-w);
       min-height: var(--paper-h);
-      margin: 12px auto;
+      margin: 0;
       background: var(--bg);
       box-shadow: 0 8px 32px rgba(0,0,0,.35);
       padding: var(--pad);
       position: relative;
+      flex-shrink: 0;
+      transform-origin: top center;
     }
 
     /* 顶部装饰线 */
@@ -214,8 +227,8 @@
     footer.bar .kw { color: var(--ink); font-weight: 600; }
 
     .hint-screen {
-      max-width: var(--paper-w);
-      margin: 8px auto 16px;
+      max-width: min(920px, calc(100vw - 24px));
+      margin: 8px auto 12px;
       padding: 8px 12px;
       background: #333;
       color: #eee;
@@ -227,10 +240,19 @@
     @media print {
       body { background: #fff; }
       .hint-screen { display: none !important; }
+      .poster-stage {
+        padding: 0;
+        overflow: visible;
+        display: block;
+        height: auto !important;
+        width: 100% !important;
+      }
       .sheet {
         margin: 0;
         box-shadow: none;
         page-break-after: always;
+        transform: none !important;
+        transform-origin: top center !important;
       }
     }
 
@@ -246,10 +268,12 @@
 <body>
 
   <div class="hint-screen">
+    <strong>屏幕预览：</strong>页面已自动按窗口宽度缩放整张展板，竖版比例不变；若仍偏小，可拉大浏览器窗口或按 Ctrl + 鼠标滚轮调整页面缩放。<br />
     <strong>打印说明：</strong>使用 Chrome / Edge 打开 → Ctrl+P → 目标选「另存为 PDF」→ 纸张大小选「900×1050 mm」（若无则选「自定义」并填入 900×1050 mm）→ 边距选「无」→ 开启「背景图形」。将你自己的作品截图、界面图替换下方灰色占位区域（可把 &lt;figure class="ph"&gt; 换成 &lt;img&gt;）。
   </div>
 
-  <main class="sheet" role="main">
+  <div class="poster-stage" id="poster-stage">
+  <main class="sheet" role="main" id="poster-sheet">
 
     <header class="title-block">
       <h1>AI 助力瓯塑：基于机器学习的配色辅助系统设计与实现</h1>
@@ -343,5 +367,42 @@
       <p><span class="kw">关键词：</span>瓯塑艺术；机器学习；色彩分析；智能配色；传统工艺数字化</p>
     </footer>
   </main>
+  </div>
+
+  <script>
+    (function () {
+      var stage = document.getElementById("poster-stage");
+      var sheet = document.getElementById("poster-sheet");
+      if (!stage || !sheet) return;
+
+      function fitPosterToViewport() {
+        if (window.matchMedia && window.matchMedia("print").matches) return;
+
+        sheet.style.transform = "";
+        sheet.style.transformOrigin = "";
+        stage.style.height = "";
+
+        var margin = 32;
+        var maxW = Math.max(200, window.innerWidth - margin);
+        var naturalW = sheet.offsetWidth;
+        if (!naturalW) return;
+
+        var scale = Math.min(1, maxW / naturalW);
+        sheet.style.transformOrigin = "top center";
+        sheet.style.transform = "scale(" + scale + ")";
+        stage.style.height = Math.ceil(sheet.offsetHeight * scale) + "px";
+      }
+
+      window.addEventListener("resize", function () {
+        window.requestAnimationFrame(fitPosterToViewport);
+      });
+      window.addEventListener("orientationchange", fitPosterToViewport);
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(fitPosterToViewport);
+      }
+      window.addEventListener("load", fitPosterToViewport);
+      fitPosterToViewport();
+    })();
+  </script>
 </body>
 </html>
