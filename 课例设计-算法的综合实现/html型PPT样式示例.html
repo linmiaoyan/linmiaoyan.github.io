@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<!-- saved from url=(0490)https://reson-assets-private.0da94ee175d35887d1042684049fdd81.r2.cloudflarestorage.com/files/3d108c81-7d0c-4349-a3ec-5e32aed09314.html?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=98b34c59f79c5e1b75968eb11d23a0b9%2F20260425%2Fauto%2Fs3%2Faws4_request&X-Amz-Date=20260425T131303Z&X-Amz-Expires=86400&X-Amz-Signature=72617c6e8dce89e10f4051b0f1d2cfbf39d11b28d4e02ccbbeabffa48074d3db&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject -->
+<html lang="zh-CN"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw 教育工作坊：长版技术介绍</title>
+  <style>
+    :root{--ink:#12161c;--muted:#616b75;--line:rgba(18,22,28,.12);--paper:rgba(255,255,255,.62);--bg1:#f7f2ea;--bg2:#ece4d7;--blue:#173f69;--blue2:#29639a;--green:#25765d;--amber:#ad7a24;--shadow:0 20px 60px rgba(18,22,28,.10)}*{box-sizing:border-box}html,body{margin:0;overflow:hidden;color:var(--ink);font-family:"PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif;background:radial-gradient(circle at 18% 18%, rgba(23,63,105,.10), transparent 28%),radial-gradient(circle at 80% 24%, rgba(37,118,93,.10), transparent 26%),linear-gradient(135deg,var(--bg1) 0%,#f1eadf 48%,var(--bg2) 100%)}body::before{content:"";position:fixed;inset:0;pointer-events:none;background-image:linear-gradient(rgba(18,22,28,.022) 1px, transparent 1px),linear-gradient(90deg, rgba(18,22,28,.022) 1px, transparent 1px);background-size:36px 36px;mask-image:radial-gradient(circle at center, black 64%, transparent 100%)}.deck{display:flex;width:1800vw;height:100vh;transition:transform .7s cubic-bezier(.22,.9,.18,1)}.slide{width:100vw;height:100vh;padding:4.6vh 4.8vw 4vh;display:grid;grid-template-rows:auto 1fr auto;position:relative}.slide.dark{background:linear-gradient(135deg,#112029 0%,#153243 42%,#0d1820 100%);color:#f5efe8}.slide.dark .muted,.slide.dark .eyebrow,.slide.dark .foot,.slide.dark .card p,.slide.dark li,.slide.dark .lede,.slide.dark .small,.slide.dark .band,.slide.dark .code{color:rgba(245,239,232,.82)}.slide.dark .card,.slide.dark .metric,.slide.dark .quote,.slide.dark .step,.slide.dark .frame,.slide.dark .band,.slide.dark .code{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.12);box-shadow:none}.topbar,.foot{display:flex;justify-content:space-between;align-items:center;z-index:2}.eyebrow,.foot{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}h1,h2{margin:0;font-family:Georgia,"Times New Roman","Noto Serif SC",serif;line-height:.96;letter-spacing:-.03em}h1{font-size:clamp(52px,6.8vw,102px)}h2{font-size:clamp(34px,4.6vw,66px)}h3{margin:0;font-family:Georgia,"Times New Roman",serif;font-size:22px}.lede{margin-top:18px;max-width:58vw;font-size:clamp(18px,1.75vw,28px);line-height:1.5;color:var(--muted)}.hero{display:grid;grid-template-columns:1.16fr .84fr;gap:3vw;align-items:center}.grid-2,.grid-3,.grid-4{display:grid;gap:18px}.grid-2{grid-template-columns:1.05fr .95fr}.grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}.grid-4{grid-template-columns:repeat(4,minmax(0,1fr))}.card,.metric,.quote,.step,.frame,.band,.code{background:var(--paper);border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow);backdrop-filter:blur(14px)}.metric{min-height:128px;padding:20px;display:flex;flex-direction:column;justify-content:space-between}.metric .num{font-family:Georgia,"Times New Roman",serif;font-size:clamp(30px,3.8vw,56px);line-height:1}.metric .label,.small{color:var(--muted);font-size:14px;line-height:1.55}.card{padding:22px;display:flex;flex-direction:column;gap:10px}.card p,li,.quote p{margin:0;color:var(--muted);line-height:1.62;font-size:16px}ul{margin:0;padding-left:22px;display:grid;gap:8px}.process{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}.step{padding:22px 20px;position:relative}.step .idx{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--green);margin-bottom:14px}.step::after{content:"";position:absolute;width:34px;height:1px;right:-17px;top:50%;background:rgba(18,22,28,.16)}.slide.dark .step::after{background:rgba(255,255,255,.18)}.process .step:last-child::after{display:none}.quote{padding:28px;display:flex;flex-direction:column;justify-content:space-between}.quote .big{font-family:Georgia,"Times New Roman",serif;font-size:clamp(26px,2.8vw,42px);line-height:1.22;color:inherit}.frame{padding:20px;min-height:220px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}.frame::before{content:"";position:absolute;width:220px;height:220px;right:-70px;bottom:-70px;border-radius:50%;background:radial-gradient(circle, rgba(23,63,105,.18), transparent 68%)}.band{display:inline-flex;gap:12px;align-items:center;padding:14px 18px;font-size:14px;color:var(--muted);margin-top:14px}.band strong{color:var(--ink)}.slide.dark .band strong{color:#fff}.code{padding:20px;font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:13.5px;line-height:1.65;white-space:pre-wrap;color:var(--blue)}.tag{display:inline-flex;margin:0 10px 10px 0;padding:7px 12px;border-radius:999px;font-size:13px;color:var(--muted);border:1px solid var(--line);background:rgba(255,255,255,.5)}.slide.dark .tag{background:rgba(255,255,255,.08);color:rgba(245,239,232,.82);border-color:rgba(255,255,255,.12)}.nav{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);display:flex;gap:10px;z-index:40;padding:10px 14px;border-radius:999px;border:1px solid rgba(18,22,28,.08);background:rgba(255,255,255,.58);backdrop-filter:blur(14px)}.dot{width:11px;height:11px;border-radius:50%;border:0;background:rgba(18,22,28,.18);cursor:pointer;transition:transform .2s ease,background .2s ease}.dot.active{background:var(--blue2);transform:scale(1.18)}@media (max-width:900px){body{overflow:auto}.deck{height:auto}.hero,.grid-2,.grid-3,.grid-4,.process{grid-template-columns:1fr}.slide{min-height:100vh;height:auto;overflow-y:auto;padding:28px 22px 82px}.lede{max-width:none}}
+  </style>
+</head>
+<body>
+  <main class="deck" id="deck" style="transform: translateX(0vw);">
+    <section class="slide">
+      <div class="topbar"><div class="eyebrow">Workshop / OpenClaw for Education</div><div>01</div></div>
+      <div class="hero">
+        <div>
+          <h1>教育智能体正从对话<br>迈向自主行动</h1>
+          <p class="lede">OpenClaw（“小龙虾”）是一个本地优先、持续在线、可连接多渠道的开源 AI 框架。它的意义，不只是“多一个聊天机器人”，而是让 AI 进入“听懂即执行”的教育工作流。</p>
+          <div class="band"><strong>工作坊主题</strong><span>本地部署、持久记忆、教育场景定制与实践体验</span></div>
+        </div>
+        <div class="grid-2">
+          <div class="metric"><div class="num">364k</div><div class="label">GitHub Stars，2026-04-25 官方仓库页面可见</div></div>
+          <div class="metric"><div class="num">本地优先</div><div class="label">可部署在个人设备或私有环境</div></div>
+          <div class="metric"><div class="num">7×24</div><div class="label">支持常驻守护进程与持续在线</div></div>
+          <div class="metric"><div class="num">多渠道</div><div class="label">支持 QQ、微信、飞书等多种消息入口</div></div>
+        </div>
+      </div>
+      <div class="foot"><span>面向对象</span><span>AI 赋能教学工作坊</span></div>
+    </section>
+
+    <section class="slide dark">
+      <div class="topbar"><div class="eyebrow">Why It Matters</div><div>02</div></div>
+      <div>
+        <h2>为什么教师需要关注“会行动的 AI”</h2>
+        <div class="grid-4" style="margin-top:28px;">
+          <div class="card"><h3>从问答走向执行</h3><p>AI 不再只是给建议，而是能够完成整理、转发、归档、触发、回收等任务。</p></div>
+          <div class="card"><h3>从单次交互走向持续陪伴</h3><p>常驻在线的智能体可持续服务教师和学生，而不是一次性问答工具。</p></div>
+          <div class="card"><h3>从个人工具走向工作流助手</h3><p>它可以连接文件、命令行、表格、IM、知识库和网页。</p></div>
+          <div class="card"><h3>从技术炫技走向教学价值</h3><p>重点不在“它有多强”，而在“它能否真正减轻教学与管理负担”。</p></div>
+        </div>
+        <div class="quote" style="margin-top:18px;"><p class="big">教育智能体的关键突破，不是更会聊天，而是更会把事情做完。</p></div>
+      </div>
+      <div class="foot"><span>工作坊背景</span><span>让 AI 进入真实教育流程</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="topbar"><div class="eyebrow">What Is OpenClaw</div><div>03</div></div>
+      <div class="grid-2" style="align-items:start;">
+        <div>
+          <h2>OpenClaw 是什么</h2>
+          <ul style="margin-top:24px;">
+            <li>一个运行在你自己设备上的个人 AI 助手框架。</li>
+            <li>支持把 AI 接入你已经在用的消息渠道与工具系统。</li>
+            <li>支持长期记忆、工作区、技能扩展和子智能体协作。</li>
+            <li>适合做本地优先、可控制、可定制的教育助手。</li>
+          </ul>
+          <div class="band"><strong>官方定位</strong><span>Personal AI Assistant you run on your own devices</span></div>
+        </div>
+        <div class="frame">
+          <div class="small">它不是</div>
+          <h3>单纯的聊天界面</h3>
+          <div class="small">它更像</div>
+          <h3>一个可持续运行、可扩展、可行动的个人智能体操作环境</h3>
+        </div>
+      </div>
+      <div class="foot"><span>产品定义</span><span>从助手到框架</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="topbar"><div class="eyebrow">Education Positioning</div><div>04</div></div>
+      <div>
+        <h2>放到教育里，它可以扮演什么角色</h2>
+        <div class="grid-4" style="margin-top:28px;">
+          <div class="card"><h3>教师助手</h3><p>备课整理、通知草拟、资料归档、课堂活动支持。</p></div>
+          <div class="card"><h3>数据助理</h3><p>表格清洗、文本整理、反馈汇总、统计结果生成。</p></div>
+          <div class="card"><h3>学生学伴</h3><p>答疑、提醒、复习陪伴、任务拆解与持续反馈。</p></div>
+          <div class="card"><h3>流程机器人</h3><p>在群聊、表单、文档、文件之间自动传递信息与执行动作。</p></div>
+        </div>
+      </div>
+      <div class="foot"><span>教育角色</span><span>既是助手，也是流程节点</span></div>
+    </section>
+
+    <section class="slide dark">
+      <div class="topbar"><div class="eyebrow">Architecture</div><div>05</div></div>
+      <div>
+        <h2>OpenClaw 的基本架构</h2>
+        <div class="process" style="margin-top:28px;">
+          <div class="step"><div class="idx">01</div><h3>消息入口</h3><p>QQ、微信、飞书、Telegram、Discord 等渠道接收用户输入。</p></div>
+          <div class="step"><div class="idx">02</div><h3>Gateway</h3><p>负责连接渠道、转发消息、管理会话与系统控制平面。</p></div>
+          <div class="step"><div class="idx">03</div><h3>Agent Runtime</h3><p>基于模型、提示、工具与工作区完成理解、推理与行动。</p></div>
+          <div class="step"><div class="idx">04</div><h3>Workspace / Skills</h3><p>通过记忆、文件、技能和子智能体支持长期运行与定制扩展。</p></div>
+        </div>
+        <div class="band"><strong>核心理解</strong><span>它不是一个孤立模型，而是一整套“消息通路 + 智能体运行时 + 工作区”的系统。</span></div>
+      </div>
+      <div class="foot"><span>系统视图</span><span>入口、控制面、运行时、工作区</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="topbar"><div class="eyebrow">Local-First</div><div>06</div></div>
+      <div class="grid-2" style="align-items:start;">
+        <div>
+          <h2>为什么“本地优先”对教育很重要</h2>
+          <ul style="margin-top:24px;">
+            <li>教师更容易掌控数据去向与模型使用边界。</li>
+            <li>学校资料、学生信息、教学文本不必天然暴露给第三方 SaaS。</li>
+            <li>本地部署更利于在校内场景下建立可解释的技术链路。</li>
+            <li>更适合后续做班级、教研组、校内平台的定制集成。</li>
+          </ul>
+        </div>
+        <div class="quote"><p class="big">对学校而言，可控性往往比“最炫的功能”更重要。</p><p>这也是本地部署型智能体框架值得关注的原因。</p></div>
+      </div>
+      <div class="foot"><span>教育视角</span><span>数据、治理与可控性优先</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="topbar"><div class="eyebrow">Core Abilities</div><div>07</div></div>
+      <div>
+        <h2>OpenClaw 的关键能力点</h2>
+        <div class="grid-4" style="margin-top:28px;">
+          <div class="card"><h3>持久记忆</h3><p>长期保留偏好、上下文和历史状态，让助手越用越懂你。</p></div>
+          <div class="card"><h3>命令与脚本执行</h3><p>可以连接文件系统、Shell 与脚本，实现真正的操作能力。</p></div>
+          <div class="card"><h3>网页与表单交互</h3><p>可与网页、表单和在线系统交互，适合信息采集与任务编排。</p></div>
+          <div class="card"><h3>技能扩展与子智能体</h3><p>支持通过 Skills 与 Subagents 扩展能力上限。</p></div>
+        </div>
+      </div>
+      <div class="foot"><span>能力结构</span><span>记忆、行动、扩展、编排</span></div>
+    </section>
+
+    <section class="slide dark">
+      <div class="topbar"><div class="eyebrow">Installation</div><div>08</div></div>
+      <div class="grid-2" style="align-items:start;">
+        <div>
+          <h2>安装准备：工作坊里最该讲清的技术前提</h2>
+          <ul style="margin-top:24px;">
+            <li>官方 README 推荐运行时为 Node 24，或 Node 22.16+。</li>
+            <li>推荐使用 `openclaw onboard --install-daemon` 进行引导式安装。</li>
+            <li>Onboard 会安装 Gateway 守护进程，使系统常驻运行。</li>
+            <li>首次部署建议在个人电脑或可控测试机上完成，不要直接上正式教学环境。</li>
+          </ul>
+        </div>
+        <div class="code"># 推荐安装方式
+npm install -g openclaw@latest
+# 或 pnpm add -g openclaw@latest
+
+openclaw onboard --install-daemon
+
+# 手动查看网关运行
+openclaw gateway --port 18789 --verbose</div>
+      </div>
+      <div class="foot"><span>部署准备</span><span>先把运行时与守护进程概念讲明白</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="topbar"><div class="eyebrow">Onboarding Flow</div><div>09</div></div>
+      <div>
+        <h2>一次完整部署，大致会经历哪些步骤</h2>
+        <div class="process" style="margin-top:28px;">
+          <div class="step"><div class="idx">01</div><h3>安装 CLI</h3><p>完成 Node 环境与 OpenClaw 命令行安装。</p></div>
+          <div class="step"><div class="idx">02</div><h3>启动 Onboard</h3><p>通过引导式流程配置模型、网关、渠道和工作区。</p></div>
+          <div class="step"><div class="idx">03</div><h3>连接渠道</h3><p>将 OpenClaw 接到 QQ、飞书或其他消息平台中。</p></div>
+          <div class="step"><div class="idx">04</div><h3>测试消息</h3><p>发送一条消息，验证通道、模型与执行链路是否正常。</p></div>
+        </div>
+        <div class="band"><strong>工作坊建议</strong><span>现场一定要准备一台已经成功跑通的示范机，避免全靠临场安装。</span></div>
+      </div>
+      <div class="foot"><span>部署流程</span><span>安装、配置、接入、测试</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="topbar"><div class="eyebrow">Always-On</div><div>10</div></div>
+      <div class="grid-2" style="align-items:start;">
+        <div>
+          <h2>为什么它能做到“7×24 小时在线”</h2>
+          <ul style="margin-top:24px;">
+            <li>不是浏览器页面开着就算在线，而是有后台 Gateway 守护进程持续运行。</li>
+            <li>Onboard 安装的 daemon 会在 macOS / Linux 等环境中常驻。</li>
+            <li>只要机器不断电、网络可用、渠道正常，智能体就可以持续接收与处理消息。</li>
+          </ul>
+        </div>
+        <div class="frame">
+          <div class="small">教育价值</div>
+          <h3>教师下班后，助手仍可继续整理群消息、归档反馈、记录任务和等待指令。</h3>
+          <div class="small">这就是“从对话走向行动”的基础设施条件。</div>
+        </div>
+      </div>
+      <div class="foot"><span>持续运行</span><span>守护进程是关键，不是聊天窗口</span></div>
+    </section>
+
+    <section class="slide dark">
+      <div class="topbar"><div class="eyebrow">Workspace &amp; Memory</div><div>11</div></div>
+      <div>
+        <h2>工作区、记忆与技能，为什么它适合长期使用</h2>
+        <div class="grid-3" style="margin-top:28px;">
+          <div class="card"><h3>Workspace</h3><p>官方 README 显示默认工作区根目录为 `~/.openclaw/workspace`，可配置。</p></div>
+          <div class="card"><h3>Injected Prompts</h3><p>支持 `AGENTS.md`、`SOUL.md`、`TOOLS.md` 等提示文件，塑造助手身份与边界。</p></div>
+          <div class="card"><h3>Skills</h3><p>支持以 `skills/<skill>/SKILL.md` 的方式扩展技能，适合做教育专用能力包。</skill></p></div>
+        </div>
+        <div class="quote" style="margin-top:18px;"><p class="big">这意味着教师可以把“自己的教学助手”真正养出来，而不是每次都从零开始对话。</p></div>
+      </div>
+      <div class="foot"><span>长期能力</span><span>不是一次性助手，而是可生长的教育伙伴</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="topbar"><div class="eyebrow">Channels</div><div>12</div></div>
+      <div>
+        <h2>多渠道接入：为什么它对学校很有吸引力</h2>
+        <div class="grid-4" style="margin-top:28px;">
+          <div class="card"><h3>熟悉入口</h3><p>教师和学生不必更换习惯，只在原有 IM 渠道中与 AI 协作。</p></div>
+          <div class="card"><h3>消息即任务</h3><p>群消息、私聊、提醒、文件传输都可以成为行动触发点。</p></div>
+          <div class="card"><h3>轻量部署</h3><p>不必先开发完整 App，先把助手接入既有沟通环境即可。</p></div>
+          <div class="card"><h3>场景连续</h3><p>课堂、教研、行政、学生支持可在同一框架下延展。</p></div>
+        </div>
+        <div class="band"><strong>官方仓库列出的渠道</strong><span>包括 QQ、WeChat、Feishu、Telegram、Discord 等多种平台。</span></div>
+      </div>
+      <div class="foot"><span>渠道接入</span><span>让智能体进入教师熟悉的工作环境</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="topbar"><div class="eyebrow">Security</div><div>13</div></div>
+      <div class="grid-2" style="align-items:start;">
+        <div>
+          <h2>安全与治理：工作坊一定要强调</h2>
+          <ul style="margin-top:24px;">
+            <li>OpenClaw 会接触真实消息渠道，因此所有外部输入都应视为不可信。</li>
+            <li>官方 README 提示对 Telegram、WhatsApp、Slack 等默认采用 DM pairing 策略。</li>
+            <li>应避免把智能体直接暴露在高权限、高风险、无审计的环境中。</li>
+            <li>教学场景下要特别避免上传学生隐私数据与敏感校务材料。</li>
+          </ul>
+        </div>
+        <div class="code"># README 提到的思路
+- unknown senders 先收到 pairing code
+- 需通过本地 approve 加入 allowlist
+- real messaging surfaces = untrusted input
+
+教育现场可转化为：
+先小范围测试，再逐步开放权限</div>
+      </div>
+      <div class="foot"><span>安全边界</span><span>先控风险，再谈规模化</span></div>
+    </section>
+
+    <section class="slide dark">
+      <div class="topbar"><div class="eyebrow">Teacher Scenarios</div><div>14</div></div>
+      <div>
+        <h2>教师工作中的高价值场景</h2>
+        <div class="grid-4" style="margin-top:28px;">
+          <div class="card"><h3>教学自动化</h3><p>通知整理、任务提醒、活动流程跟进、课前准备清单。</p></div>
+          <div class="card"><h3>数据处理</h3><p>课堂反馈汇总、文本清洗、表格整理、结果摘要与可视化前处理。</p></div>
+          <div class="card"><h3>内容协作</h3><p>生成课程框架、案例草稿、问题链和活动方案初稿。</p></div>
+          <div class="card"><h3>教研支持</h3><p>群消息归档、资料标签化、会议纪要整理与行动项提取。</p></div>
+        </div>
+        <div class="quote" style="margin-top:18px;"><p class="big">对教师而言，最有价值的不是“它会不会说”，而是“它能不能稳定处理那些反复出现的小任务”。</p></div>
+      </div>
+      <div class="foot"><span>教师场景</span><span>小自动化，先创造大价值</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="topbar"><div class="eyebrow">Student Scenarios</div><div>15</div></div>
+      <div>
+        <h2>面向学生，可以做什么样的 AI 学伴</h2>
+        <div class="grid-4" style="margin-top:28px;">
+          <div class="card"><h3>学习提醒助手</h3><p>定时提醒作业、复习节点、考试安排和项目里程碑。</p></div>
+          <div class="card"><h3>任务拆解伙伴</h3><p>把大任务拆成可执行小步骤，持续追踪完成情况。</p></div>
+          <div class="card"><h3>问答与反馈助手</h3><p>在教师设定范围内做答疑、解释与学习建议。</p></div>
+          <div class="card"><h3>项目协作助手</h3><p>配合项目式学习，整理记录、分发材料与收集过程数据。</p></div>
+        </div>
+      </div>
+      <div class="foot"><span>学生场景</span><span>先做陪伴与组织，再谈深度智能</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="topbar"><div class="eyebrow">Workshop Agenda</div><div>16</div></div>
+      <div>
+        <h2>这场工作坊可以怎样安排</h2>
+        <div class="process" style="margin-top:28px;">
+          <div class="step"><div class="idx">01</div><h3>概念导入</h3><p>解释什么是教育智能体，为什么 OpenClaw 值得看。</p></div>
+          <div class="step"><div class="idx">02</div><h3>技术拆解</h3><p>讲清本地部署、守护进程、记忆、技能与多渠道接入。</p></div>
+          <div class="step"><div class="idx">03</div><h3>现场演示</h3><p>演示部署后与 QQ / 飞书等渠道协作的真实效果。</p></div>
+          <div class="step"><div class="idx">04</div><h3>案例体验</h3><p>带老师完成一个教学自动化或数据处理小案例。</p></div>
+        </div>
+        <div class="band"><strong>建议</strong><span>讲技术时务必配合真实案例，否则老师会只看到“框架”，看不到“价值”。</span></div>
+      </div>
+      <div class="foot"><span>流程设计</span><span>概念、原理、演示、案例四段式</span></div>
+    </section>
+
+    <section class="slide dark">
+      <div class="topbar"><div class="eyebrow">Preparation</div><div>17</div></div>
+      <div>
+        <h2>工作坊前的准备清单</h2>
+        <div class="grid-3" style="margin-top:28px;">
+          <div class="card"><h3>环境准备</h3><p>Node 环境、OpenClaw CLI、已跑通的示范机、备用网络。</p></div>
+          <div class="card"><h3>账号准备</h3><p>测试用消息渠道账号、模型访问凭据、本地演示数据。</p></div>
+          <div class="card"><h3>案例准备</h3><p>一个能现场看见结果的教学场景，如反馈汇总或作业提醒。</p></div>
+        </div>
+        <div class="quote" style="margin-top:18px;"><p class="big">工作坊成功的关键，不是把安装命令念完，而是让老师真正看到“部署之后它能帮我做什么”。</p></div>
+      </div>
+      <div class="foot"><span>会前准备</span><span>演示成功率比理论完整性更重要</span></div>
+    </section>
+
+    <section class="slide">
+      <div class="topbar"><div class="eyebrow">Closing</div><div>18</div></div>
+      <div class="grid-2" style="align-items:center;">
+        <div>
+          <h2>结语</h2>
+          <p class="lede">OpenClaw 之所以值得带进教师工作坊，不在于它“火”，而在于它让我们第一次可以比较真实地把本地、持续、可行动的教育智能体带到老师面前。</p>
+          <div style="margin-top:22px;">
+            <span class="tag">本地部署</span>
+            <span class="tag">持久记忆</span>
+            <span class="tag">渠道接入</span>
+            <span class="tag">技能扩展</span>
+            <span class="tag">教育场景定制</span>
+          </div>
+        </div>
+        <div class="quote"><p class="big">真正值得教师关注的，不是“AI 会不会替代人”，而是“教师能不能把 AI 训练成真正服务教学的伙伴”。</p><p>公开信息参考：GitHub `openclaw/openclaw` 仓库与官方文档页，核对日期为 2026-04-25。</p></div>
+      </div>
+      <div class="foot"><span>结束页</span><span>OpenClaw 教育工作坊长版介绍</span></div>
+    </section>
+  </main>
+
+  <div class="nav" id="nav"><button class="dot active"></button><button class="dot"></button><button class="dot"></button><button class="dot"></button><button class="dot"></button><button class="dot"></button><button class="dot"></button><button class="dot"></button><button class="dot"></button><button class="dot"></button><button class="dot"></button><button class="dot"></button><button class="dot"></button><button class="dot"></button><button class="dot"></button><button class="dot"></button><button class="dot"></button><button class="dot"></button></div>
+  <script>
+    const deck=document.getElementById('deck');const slides=[...document.querySelectorAll('.slide')];const nav=document.getElementById('nav');let index=0;function renderDots(){nav.innerHTML='';slides.forEach((_,i)=>{const dot=document.createElement('button');dot.className='dot'+(i===index?' active':'');dot.addEventListener('click',()=>go(i));nav.appendChild(dot);});}function go(i){index=Math.max(0,Math.min(slides.length-1,i));deck.style.transform=`translateX(-${index*100}vw)`;renderDots();}window.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' ')go(index+1);if(e.key==='ArrowLeft'||e.key==='PageUp')go(index-1);if(e.key==='Home')go(0);if(e.key==='End')go(slides.length-1);});let startX=0;window.addEventListener('touchstart',e=>startX=e.touches[0].clientX,{passive:true});window.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-startX;if(dx<-40)go(index+1);if(dx>40)go(index-1);},{passive:true});renderDots();go(0);
+  </script>
+
+
+</body></html>
