@@ -30,7 +30,8 @@ body {
   width: 100vw;
   height: 100vh;
   place-items: end center;
-  padding: 26px 16px 12px;
+  padding: 58px 18px 10px;
+  pointer-events: none;
 }
 
 .pet {
@@ -44,6 +45,7 @@ body {
   filter: drop-shadow(0 18px 18px rgb(0 0 0 / 24%));
   transform-origin: 50% 90%;
   animation: idle-bob 2.8s ease-in-out infinite;
+  pointer-events: auto;
 }
 
 .pet:active {
@@ -110,9 +112,9 @@ body {
 
 .speech {
   position: absolute;
-  top: 10px;
+  bottom: calc(18px + var(--pet-size) * 1.45);
   left: 50%;
-  max-width: 78%;
+  max-width: min(92%, calc(var(--pet-size) + 16px));
   padding: 8px 12px;
   border: 1px solid rgb(255 255 255 / 80%);
   border-radius: 999px;
@@ -123,6 +125,8 @@ body {
   line-height: 1.35;
   box-shadow: 0 10px 24px rgb(15 23 42 / 14%);
   transform: translateX(-50%);
+  pointer-events: none;
+  z-index: 2;
 }
 
 .speech::after {
