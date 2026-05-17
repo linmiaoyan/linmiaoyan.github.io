@@ -4,7 +4,8 @@
 
 ## 当前完成内容
 
-- 已根据你上传的人物图生成第一版卡通主图：`assets/pet-cartoon-idle.png`
+- 已采用方案 C 作为正式卡通主图：`assets/pet-cartoon-idle.png`
+- 已生成并接入动作/表情图片：`assets/actions/`
 - 透明、无边框、置顶的桌宠窗口
 - 默认后台常驻：控制台关闭时隐藏到系统托盘
 - 控制台设置项：
@@ -19,8 +20,13 @@
   - 启动时后台隐藏/显示控制台
 - 快捷动作：
   - 挥手
+  - 走路
   - 抓一下
   - 休息
+  - 开心
+  - 委屈
+  - 惊讶
+  - 思考
   - 回到右下角
 
 ## 运行
@@ -61,26 +67,23 @@ npm run dist:mac
 - macOS DMG 通常需要在 macOS 环境构建；Windows EXE 建议在 Windows 环境构建，跨系统构建时可能需要额外的 Wine/签名环境。
 - 正式发布前建议补充平台图标：`build/icon.ico`、`build/icon.icns`、`build/icon.png`，并配置代码签名。
 
-## 后续动作图接入方式
+## 动作图片资源
 
-目前因为需要先确认卡通主图，`wave`、`walk`、`sleep`、`caught` 等动作先用 CSS 动效和窗口移动模拟。确认主图后，可以继续生成透明背景动作图，放到 `assets/` 下，并更新 `assets/actions.json`：
+当前动作配置集中在 `assets/actions.json`，图片文件位于 `assets/actions/`：
 
-```json
-{
-  "id": "wave",
-  "name": "挥手",
-  "image": "pet-cartoon-wave.png",
-  "implementedBy": "image-sequence"
-}
-```
+- `wave.png`：挥手
+- `walk.png`：走路/巡游
+- `sleep.png`：休息
+- `caught.png`：被抓起
+- `happy.png`：开心
+- `sad.png`：委屈
+- `surprised.png`：惊讶
+- `thinking.png`：思考
 
-然后在 `src/pet.js` 中按动作切换图片或序列帧即可。
+桌宠窗口通过 `src/pet.js` 的 `ACTIONS` 映射按动作切换 PNG。控制台按钮会触发对应动作；拖拽桌宠时自动切换到 `caught`；自动巡游时会周期性显示 `walk`。
 
-## 卡通主图确认点
+## 后续扩展建议
 
-请重点确认：
-
-1. 人物发型和五官是否接近原图。
-2. 米白色冲锋衣、黑裤子、登山鞋是否保留。
-3. 卡通化程度是否合适。
-4. 是否需要更偏 Q 版、日漫、像素风、扁平贴纸或 3D 软萌风。
+- 如果需要更丝滑的动画，可以把单张动作图升级为序列帧，例如 `wave-01.png` 到 `wave-06.png`。
+- 如果要做更复杂的互动，可以继续添加喂食、摸头、提醒喝水、随机对话等状态。
+- 正式发布前建议补全平台图标、签名和自动更新配置。

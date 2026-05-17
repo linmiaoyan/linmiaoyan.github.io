@@ -55,6 +55,9 @@ body {
   height: 100%;
   object-fit: contain;
   pointer-events: none;
+  transition:
+    transform 0.18s ease,
+    opacity 0.18s ease;
 }
 
 .pet.dragging {
@@ -73,6 +76,36 @@ body {
 
 .pet.surprise {
   animation: surprise 0.55s cubic-bezier(0.2, 1.35, 0.25, 1) 1;
+}
+
+.pet[data-action="wave"],
+.pet[data-action="happy"] {
+  animation: wave 0.8s ease-in-out infinite;
+}
+
+.pet[data-action="walk"] {
+  animation: walk-step 0.55s ease-in-out infinite;
+}
+
+.pet[data-action="sleep"] {
+  animation: sleep 2.2s ease-in-out infinite;
+  filter: drop-shadow(0 10px 12px rgb(0 0 0 / 20%));
+}
+
+.pet[data-action="caught"] {
+  animation: caught-wiggle 0.48s ease-in-out infinite;
+}
+
+.pet[data-action="sad"] img {
+  transform: translateY(8px) scale(0.98);
+}
+
+.pet[data-action="surprised"] {
+  animation: surprise 0.55s cubic-bezier(0.2, 1.35, 0.25, 1) infinite;
+}
+
+.pet[data-action="thinking"] {
+  animation: thinking-sway 1.5s ease-in-out infinite;
 }
 
 .speech {
@@ -195,5 +228,25 @@ body {
   }
   100% {
     transform: scale(1);
+  }
+}
+
+@keyframes walk-step {
+  0%,
+  100% {
+    transform: translateX(-2px) translateY(0) rotate(-2deg);
+  }
+  50% {
+    transform: translateX(2px) translateY(-7px) rotate(2deg);
+  }
+}
+
+@keyframes thinking-sway {
+  0%,
+  100% {
+    transform: rotate(-1deg);
+  }
+  50% {
+    transform: rotate(2deg) translateY(-3px);
   }
 }

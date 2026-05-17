@@ -1,4 +1,5 @@
 const pet = document.querySelector("#pet");
+const petImage = document.querySelector("#pet-image");
 const petShell = document.querySelector("#pet-shell");
 const speech = document.querySelector("#speech");
 const openControl = document.querySelector("#open-control");
@@ -8,13 +9,58 @@ let settings = {};
 let dragState = null;
 let speechTimer;
 let actionTimer;
+let currentAction = "idle";
 
-const messages = {
-  idle: "我在这里陪你",
-  wave: "你好呀",
-  sleep: "我先休息一会儿",
-  surprise: "哇，被抓住了",
-  dragged: "抓到我啦"
+const ACTIONS = {
+  idle: {
+    image: "../assets/pet-cartoon-idle.png",
+    message: "我在这里陪你"
+  },
+  wave: {
+    image: "../assets/actions/wave.png",
+    message: "你好呀",
+    duration: 1600
+  },
+  walk: {
+    image: "../assets/actions/walk.png",
+    message: "我去巡逻一下",
+    duration: 1200
+  },
+  sleep: {
+    image: "../assets/actions/sleep.png",
+    message: "我先休息一会儿",
+    persistent: true
+  },
+  caught: {
+    image: "../assets/actions/caught.png",
+    message: "抓到我啦",
+    duration: 1000
+  },
+  happy: {
+    image: "../assets/actions/happy.png",
+    message: "今天也要开心",
+    duration: 1600
+  },
+  sad: {
+    image: "../assets/actions/sad.png",
+    message: "有点小委屈",
+    duration: 1800
+  },
+  surprised: {
+    image: "../assets/actions/surprised.png",
+    message: "哇，被发现了",
+    duration: 1200
+  },
+  thinking: {
+    image: "../assets/actions/thinking.png",
+    message: "让我想一想",
+    duration: 1800
+  }
+};
+
+const ACTION_ALIASES = {
+  surprise: "surprised",
+  dragged: "caught"
 };
 
 function setPetSize(size) {
@@ -30,17 +76,34 @@ function showSpeech(text, duration = 1600) {
   }, duration);
 }
 
-function setAction(action, duration = 1200) {
-  pet.classList.remove("wave", "sleep", "surprise");
+function normalizeAction(action) {
+  if (typeof action === "object" && action !== null) {
+    return ACTION_ALIASES[action.id] || action.id || "idle";
+  }
+  return ACTION_ALIASES[action] || action || "idle";
+}
+
+function setAction(action, options = {}) {
+  const actionId = normalizeAction(action);
+  const config = ACTIONS[actionId] || ACTIONS.idle;
+  const isAutoAction = Boolean(options.auto || action?.auto);
+
+  if (isAutoAction && currentAction !== "idle") return;
+
   clearTimeout(actionTimer);
 
-  if (action === "idle") return;
-  pet.classList.add(action);
-  showSpeech(messages[action] || messages.idle);
+  currentAction = actionId;
+  pet.dataset.action = actionId;
+  petImage.src = config.image;
 
-  if (action !== "sleep") {
+  if (actionId !== "idle") {
+    showSpeech(config.message || ACTIONS.idle.message);
+  }
+
+  if (!config.persistent && !options.persistent) {
+    const duration = options.duration || config.duration || 1200;
     actionTimer = setTimeout(() => {
-      pet.classList.remove(action);
+      setAction("idle", { silent: true });
     }, duration);
   }
 }
@@ -56,8 +119,7 @@ function startDrag(event) {
 
   pet.setPointerCapture(event.pointerId);
   pet.classList.add("dragging");
-  pet.classList.remove("sleep");
-  showSpeech(messages.dragged, 900);
+  setAction("caught", { persistent: true });
   window.desktopPet.dragStart();
 }
 
@@ -82,7 +144,7 @@ function endDrag(event) {
   }
   dragState = null;
   pet.classList.remove("dragging");
-  setAction("surprise", 700);
+  setAction("surprised", { duration: 900 });
   window.desktopPet.dragEnd();
 }
 
@@ -104,8 +166,9 @@ function bindEvents() {
 async function init() {
   settings = await window.desktopPet.getSettings();
   setPetSize(settings.petSize);
+  setAction("idle", { silent: true });
   bindEvents();
-  showSpeech(messages.idle, 1200);
+  showSpeech(ACTIONS.idle.message, 1200);
 
   window.desktopPet.onSettingsChanged((nextSettings) => {
     settings = nextSettings;
