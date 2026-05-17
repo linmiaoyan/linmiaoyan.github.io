@@ -67,6 +67,8 @@ npm run dist:mac
 - macOS DMG 通常需要在 macOS 环境构建；Windows EXE 建议在 Windows 环境构建，跨系统构建时可能需要额外的 Wine/签名环境。
 - 正式发布前建议补充平台图标：`build/icon.ico`、`build/icon.icns`、`build/icon.png`，并配置代码签名。
 
+GitHub Actions 也已提供跨平台构建工作流：`.github/workflows/desktop-pet-build.yml`。在 GitHub 的 Actions 页面手动运行 **Build Desktop Pet Installers**，或向 `main` 推送桌宠相关改动后，会分别用 Windows runner 导出 `.exe`、macOS runner 导出 `.dmg`，并上传为可下载 artifact。
+
 ## 动作图片资源
 
 当前动作配置集中在 `assets/actions.json`，图片文件位于 `assets/actions/`：
