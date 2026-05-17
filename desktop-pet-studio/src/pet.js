@@ -1,9 +1,6 @@
 const pet = document.querySelector("#pet");
 const petImage = document.querySelector("#pet-image");
-const petShell = document.querySelector("#pet-shell");
 const speech = document.querySelector("#speech");
-const openControl = document.querySelector("#open-control");
-const quickActions = document.querySelectorAll("[data-action]");
 
 let settings = {};
 let dragState = null;
@@ -111,16 +108,18 @@ function setAction(action, options = {}) {
 function startDrag(event) {
   if (!settings.catchModeEnabled || event.button !== 0) return;
 
-  const rect = petShell.getBoundingClientRect();
   dragState = {
-    offsetX: event.clientX + rect.left,
-    offsetY: event.clientY + rect.top
+    pointerId: event.pointerId
   };
 
+  event.preventDefault();
   pet.setPointerCapture(event.pointerId);
   pet.classList.add("dragging");
   setAction("caught", { persistent: true });
-  window.desktopPet.dragStart();
+  window.desktopPet.dragStart({
+    screenX: event.screenX,
+    screenY: event.screenY
+  });
 }
 
 function moveDrag(event) {
@@ -128,9 +127,7 @@ function moveDrag(event) {
 
   window.desktopPet.dragTo({
     screenX: event.screenX,
-    screenY: event.screenY,
-    offsetX: dragState.offsetX,
-    offsetY: dragState.offsetY
+    screenY: event.screenY
   });
 }
 
@@ -154,13 +151,12 @@ function bindEvents() {
   pet.addEventListener("pointerup", endDrag);
   pet.addEventListener("pointercancel", endDrag);
   pet.addEventListener("dblclick", () => window.desktopPet.showControl());
-
-  openControl.addEventListener("click", () => window.desktopPet.showControl());
-  quickActions.forEach((button) => {
-    button.addEventListener("click", () => {
-      setAction(button.dataset.action);
-    });
+  pet.addEventListener("contextmenu", (event) => {
+    event.preventDefault();
+    window.desktopPet.showPetMenu();
   });
+  window.addEventListener("pointerup", endDrag);
+  window.addEventListener("pointercancel", endDrag);
 }
 
 async function init() {

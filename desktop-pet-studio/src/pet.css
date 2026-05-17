@@ -138,44 +138,6 @@ body {
   transform: translateX(-50%) rotate(45deg);
 }
 
-.quick-menu {
-  position: absolute;
-  right: 12px;
-  bottom: 18px;
-  display: grid;
-  gap: 6px;
-  opacity: 0;
-  transform: translateY(8px);
-  transition:
-    opacity 0.16s ease,
-    transform 0.16s ease;
-  pointer-events: none;
-}
-
-.pet-shell:hover .quick-menu,
-.quick-menu:focus-within {
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
-}
-
-.quick-menu button {
-  min-width: 58px;
-  padding: 6px 9px;
-  border: 1px solid rgb(148 163 184 / 42%);
-  border-radius: 999px;
-  background: rgb(255 255 255 / 86%);
-  color: #334155;
-  font-size: 12px;
-  font-weight: 700;
-  box-shadow: 0 8px 22px rgb(15 23 42 / 12%);
-  cursor: pointer;
-}
-
-.quick-menu button:hover {
-  background: #eef6ff;
-}
-
 @keyframes idle-bob {
   0%,
   100% {
