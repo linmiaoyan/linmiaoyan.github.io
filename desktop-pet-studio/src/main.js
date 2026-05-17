@@ -172,7 +172,7 @@ function petWindowSize(size) {
   };
 }
 
-function updateSettings(partial) {
+function updateSettings(partial = {}) {
   settings = {
     ...settings,
     ...partial,
@@ -274,8 +274,8 @@ app.whenReady().then(() => {
   }
 });
 
-app.on("window-all-closed", (event) => {
-  event.preventDefault();
+app.on("window-all-closed", () => {
+  // Keeping a listener here makes the app stay alive in the tray.
 });
 
 app.on("activate", () => {
