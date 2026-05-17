@@ -37,6 +37,30 @@ npm start
 npm run check
 ```
 
+## 打包架构
+
+当前技术栈选用 Electron，并已接入 `electron-builder`，后续可以基于同一套桌宠逻辑分别输出 Windows 安装包和 macOS 安装包。
+
+常用命令：
+
+```bash
+# 只打包成本机目录，便于快速检查产物结构
+npm run pack
+
+# Windows NSIS 安装包，产物为 .exe
+npm run dist:win
+
+# macOS DMG 安装包，产物为 .dmg
+npm run dist:mac
+```
+
+说明：
+
+- `package.json` 中的 `build.win` 已配置 NSIS 安装器，适合输出 Windows `.exe`。
+- `package.json` 中的 `build.mac` 已配置 DMG，适合输出 Apple Silicon 和 Intel Mac 的 `.dmg`。
+- macOS DMG 通常需要在 macOS 环境构建；Windows EXE 建议在 Windows 环境构建，跨系统构建时可能需要额外的 Wine/签名环境。
+- 正式发布前建议补充平台图标：`build/icon.ico`、`build/icon.icns`、`build/icon.png`，并配置代码签名。
+
 ## 后续动作图接入方式
 
 目前因为需要先确认卡通主图，`wave`、`walk`、`sleep`、`caught` 等动作先用 CSS 动效和窗口移动模拟。确认主图后，可以继续生成透明背景动作图，放到 `assets/` 下，并更新 `assets/actions.json`：
