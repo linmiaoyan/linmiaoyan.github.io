@@ -25,6 +25,7 @@ let tray;
 let wanderTimer;
 let isDragging = false;
 let lastWanderActionAt = 0;
+let dragOffset;
 let velocity = { x: 1.4, y: 0.8 };
 
 const settingsPath = () => path.join(app.getPath("userData"), "settings.json");
@@ -91,6 +92,15 @@ function createControlWindow() {
   });
 
   controlWindow.loadFile(path.join(__dirname, "control.html"));
+  controlWindow.on("show", () => {
+    if (petWindow) applySettingsToPet();
+    controlWindow.setAlwaysOnTop(true, "screen-saver");
+    controlWindow.moveTop();
+  });
+  controlWindow.on("hide", () => {
+    controlWindow.setAlwaysOnTop(false);
+    applySettingsToPet();
+  });
   controlWindow.on("close", (event) => {
     if (!app.isQuitting) {
       event.preventDefault();
@@ -134,7 +144,10 @@ function buildTrayMenu() {
 
 function showControlWindow() {
   if (!controlWindow) createControlWindow();
+  if (petWindow) applySettingsToPet();
   controlWindow.show();
+  controlWindow.setAlwaysOnTop(true, "screen-saver");
+  controlWindow.moveTop();
   controlWindow.focus();
 }
 
@@ -196,9 +209,15 @@ function applySettingsToPet() {
   const bounds = petWindow.getBounds();
   const nextSize = petWindowSize(settings.petSize);
   petWindow.setSize(nextSize.width, nextSize.height);
-  petWindow.setPosition(bounds.x, bounds.y);
+  const nextPosition = clampWindowPosition(
+    { ...bounds, width: nextSize.width, height: nextSize.height },
+    bounds.x,
+    bounds.y
+  );
+  petWindow.setPosition(nextPosition.x, nextPosition.y);
   petWindow.setOpacity(settings.opacity);
-  petWindow.setAlwaysOnTop(settings.alwaysOnTop, "screen-saver");
+  const controlIsVisible = Boolean(controlWindow && controlWindow.isVisible());
+  petWindow.setAlwaysOnTop(settings.alwaysOnTop && !controlIsVisible, "screen-saver");
   petWindow.setSkipTaskbar(true);
   petWindow.setIgnoreMouseEvents(Boolean(settings.clickThroughWhenIdle), { forward: true });
   petWindow.webContents.send("settings:changed", settings);
@@ -222,7 +241,7 @@ function startWanderLoop() {
 
   lastWanderActionAt = 0;
   wanderTimer = setInterval(() => {
-    if (!petWindow || isDragging || settings.clickThroughWhenIdle) return;
+    if (!petWindow || isDragging || settings.clickThroughWhenIdle || controlWindow?.isVisible()) return;
     const bounds = petWindow.getBounds();
     const display = screen.getDisplayMatching(bounds);
     const area = display.workArea;
@@ -264,6 +283,14 @@ function snapPetToEdge() {
   petWindow.setPosition(nextX, nextY);
 }
 
+function clampWindowPosition(bounds, x, y) {
+  const area = screen.getDisplayMatching(bounds).workArea;
+  return {
+    x: clamp(Math.round(x), area.x, area.x + area.width - bounds.width),
+    y: clamp(Math.round(y), area.y, area.y + area.height - bounds.height)
+  };
+}
+
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
 }
@@ -293,7 +320,25 @@ app.on("activate", () => {
 ipcMain.handle("settings:get", () => settings);
 ipcMain.handle("settings:update", (_event, partial) => updateSettings(partial));
 ipcMain.handle("control:show", () => showControlWindow());
+ipcMain.handle("pet:show-menu", () => {
+  if (!petWindow) return;
+
+  Menu.buildFromTemplate([
+    { label: "打开设置", click: showControlWindow },
+    { type: "separator" },
+    { label: "挥手", click: () => petWindow.webContents.send("pet:action", "wave") },
+    { label: "开心", click: () => petWindow.webContents.send("pet:action", "happy") },
+    { label: "思考", click: () => petWindow.webContents.send("pet:action", "thinking") },
+    { label: "休息", click: () => petWindow.webContents.send("pet:action", "sleep") },
+    { type: "separator" },
+    { label: "回到右下角", click: () => resetPetPosition() }
+  ]).popup({ window: petWindow });
+});
 ipcMain.handle("pet:reset-position", () => {
+  resetPetPosition();
+});
+
+function resetPetPosition() {
   if (!petWindow) return;
   const { workArea } = screen.getPrimaryDisplay();
   const bounds = petWindow.getBounds();
@@ -301,21 +346,28 @@ ipcMain.handle("pet:reset-position", () => {
     workArea.x + workArea.width - bounds.width - 48,
     workArea.y + workArea.height - bounds.height - 72
   );
-});
+}
 
-ipcMain.on("pet:drag-start", () => {
+ipcMain.on("pet:drag-start", (_event, point) => {
+  if (!petWindow || !settings.catchModeEnabled) return;
+  const bounds = petWindow.getBounds();
   isDragging = true;
+  dragOffset = {
+    x: point.screenX - bounds.x,
+    y: point.screenY - bounds.y
+  };
 });
 
 ipcMain.on("pet:drag-to", (_event, point) => {
-  if (!petWindow || !settings.catchModeEnabled) return;
-  const nextX = Math.round(point.screenX - point.offsetX);
-  const nextY = Math.round(point.screenY - point.offsetY);
-  petWindow.setPosition(nextX, nextY);
+  if (!petWindow || !settings.catchModeEnabled || !dragOffset) return;
+  const bounds = petWindow.getBounds();
+  const next = clampWindowPosition(bounds, point.screenX - dragOffset.x, point.screenY - dragOffset.y);
+  petWindow.setPosition(next.x, next.y);
 });
 
 ipcMain.on("pet:drag-end", () => {
   isDragging = false;
+  dragOffset = undefined;
   snapPetToEdge();
 });
 
