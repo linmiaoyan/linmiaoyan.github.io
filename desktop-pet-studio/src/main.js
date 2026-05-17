@@ -26,6 +26,7 @@ let wanderTimer;
 let isDragging = false;
 let lastWanderActionAt = 0;
 let dragOffset;
+let dynamicMousePassthrough = false;
 let velocity = { x: 1.4, y: 0.8 };
 
 const settingsPath = () => path.join(app.getPath("userData"), "settings.json");
@@ -137,6 +138,14 @@ function buildTrayMenu() {
       label: settings.movementEnabled ? "暂停自动活动" : "启用自动活动",
       click: () => updateSettings({ movementEnabled: !settings.movementEnabled })
     },
+    {
+      label: "恢复可拖拽",
+      click: () => restorePetInteraction()
+    },
+    {
+      label: settings.clickThroughWhenIdle ? "关闭鼠标穿透" : "开启鼠标穿透",
+      click: () => updateSettings({ clickThroughWhenIdle: !settings.clickThroughWhenIdle })
+    },
     { type: "separator" },
     { label: "退出", click: quitApp }
   ]);
@@ -144,6 +153,7 @@ function buildTrayMenu() {
 
 function showControlWindow() {
   if (!controlWindow) createControlWindow();
+  if (settings.clickThroughWhenIdle) updateSettings({ clickThroughWhenIdle: false });
   if (petWindow) applySettingsToPet();
   controlWindow.show();
   controlWindow.setAlwaysOnTop(true, "screen-saver");
@@ -171,7 +181,10 @@ function togglePetVisibility() {
     return;
   }
   if (petWindow.isVisible()) petWindow.hide();
-  else petWindow.showInactive();
+  else {
+    restorePetInteraction();
+    petWindow.showInactive();
+  }
 }
 
 function quitApp() {
@@ -181,8 +194,8 @@ function quitApp() {
 
 function petWindowSize(size) {
   return {
-    width: Math.round(size * 1.45),
-    height: Math.round(size * 1.72)
+    width: Math.round(size + 36),
+    height: Math.round(size * 1.45 + 82)
   };
 }
 
@@ -219,8 +232,25 @@ function applySettingsToPet() {
   const controlIsVisible = Boolean(controlWindow && controlWindow.isVisible());
   petWindow.setAlwaysOnTop(settings.alwaysOnTop && !controlIsVisible, "screen-saver");
   petWindow.setSkipTaskbar(true);
-  petWindow.setIgnoreMouseEvents(Boolean(settings.clickThroughWhenIdle), { forward: true });
+  applyMousePassthrough();
   petWindow.webContents.send("settings:changed", settings);
+}
+
+function applyMousePassthrough() {
+  if (!petWindow) return;
+  petWindow.setIgnoreMouseEvents(Boolean(settings.clickThroughWhenIdle || dynamicMousePassthrough), {
+    forward: true
+  });
+}
+
+function restorePetInteraction() {
+  dynamicMousePassthrough = false;
+  updateSettings({
+    catchModeEnabled: true,
+    clickThroughWhenIdle: false
+  });
+  if (petWindow && !petWindow.isVisible()) petWindow.showInactive();
+  if (petWindow) applyMousePassthrough();
 }
 
 function applyLoginItemSettings() {
@@ -331,11 +361,16 @@ ipcMain.handle("pet:show-menu", () => {
     { label: "思考", click: () => petWindow.webContents.send("pet:action", "thinking") },
     { label: "休息", click: () => petWindow.webContents.send("pet:action", "sleep") },
     { type: "separator" },
+    { label: "恢复可拖拽", click: () => restorePetInteraction() },
     { label: "回到右下角", click: () => resetPetPosition() }
   ]).popup({ window: petWindow });
 });
 ipcMain.handle("pet:reset-position", () => {
   resetPetPosition();
+});
+ipcMain.on("pet:mouse-passthrough", (_event, enabled) => {
+  dynamicMousePassthrough = Boolean(enabled) && !isDragging;
+  applyMousePassthrough();
 });
 
 function resetPetPosition() {
@@ -352,6 +387,8 @@ ipcMain.on("pet:drag-start", (_event, point) => {
   if (!petWindow || !settings.catchModeEnabled) return;
   const bounds = petWindow.getBounds();
   isDragging = true;
+  dynamicMousePassthrough = false;
+  applyMousePassthrough();
   dragOffset = {
     x: point.screenX - bounds.x,
     y: point.screenY - bounds.y
@@ -368,6 +405,8 @@ ipcMain.on("pet:drag-to", (_event, point) => {
 ipcMain.on("pet:drag-end", () => {
   isDragging = false;
   dragOffset = undefined;
+  dynamicMousePassthrough = false;
+  applyMousePassthrough();
   snapPetToEdge();
 });
 

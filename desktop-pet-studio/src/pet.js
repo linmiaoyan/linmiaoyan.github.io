@@ -1,5 +1,6 @@
 const pet = document.querySelector("#pet");
 const petImage = document.querySelector("#pet-image");
+const petShell = document.querySelector("#pet-shell");
 const speech = document.querySelector("#speech");
 
 let settings = {};
@@ -7,6 +8,7 @@ let dragState = null;
 let speechTimer;
 let actionTimer;
 let currentAction = "idle";
+let mousePassthrough = false;
 
 const ACTIONS = {
   idle: {
@@ -64,6 +66,12 @@ function setPetSize(size) {
   document.documentElement.style.setProperty("--pet-size", `${size}px`);
 }
 
+function setMousePassthrough(enabled) {
+  if (mousePassthrough === enabled) return;
+  mousePassthrough = enabled;
+  window.desktopPet.setMousePassthrough(enabled);
+}
+
 function showSpeech(text, duration = 1600) {
   speech.textContent = text;
   speech.hidden = false;
@@ -113,6 +121,7 @@ function startDrag(event) {
   };
 
   event.preventDefault();
+  setMousePassthrough(false);
   pet.setPointerCapture(event.pointerId);
   pet.classList.add("dragging");
   setAction("caught", { persistent: true });
@@ -141,8 +150,23 @@ function endDrag(event) {
   }
   dragState = null;
   pet.classList.remove("dragging");
+  setMousePassthrough(false);
   setAction("surprised", { duration: 900 });
   window.desktopPet.dragEnd();
+}
+
+function updatePointerPassthrough(event) {
+  if (dragState || settings.clickThroughWhenIdle) return;
+
+  const petBounds = pet.getBoundingClientRect();
+  const padding = 8;
+  const overPet =
+    event.clientX >= petBounds.left - padding &&
+    event.clientX <= petBounds.right + padding &&
+    event.clientY >= petBounds.top - padding &&
+    event.clientY <= petBounds.bottom + padding;
+
+  setMousePassthrough(!overPet);
 }
 
 function bindEvents() {
@@ -155,6 +179,10 @@ function bindEvents() {
     event.preventDefault();
     window.desktopPet.showPetMenu();
   });
+  pet.addEventListener("pointerenter", () => setMousePassthrough(false));
+  petShell.addEventListener("mousemove", updatePointerPassthrough);
+  window.addEventListener("mousemove", updatePointerPassthrough);
+  window.addEventListener("blur", () => setMousePassthrough(false));
   window.addEventListener("pointerup", endDrag);
   window.addEventListener("pointercancel", endDrag);
 }
@@ -169,6 +197,7 @@ async function init() {
   window.desktopPet.onSettingsChanged((nextSettings) => {
     settings = nextSettings;
     setPetSize(settings.petSize);
+    if (!settings.clickThroughWhenIdle) setMousePassthrough(false);
   });
 
   window.desktopPet.onPetAction((action) => {

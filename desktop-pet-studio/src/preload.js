@@ -6,6 +6,7 @@ contextBridge.exposeInMainWorld("desktopPet", {
   showControl: () => ipcRenderer.invoke("control:show"),
   showPetMenu: () => ipcRenderer.invoke("pet:show-menu"),
   resetPosition: () => ipcRenderer.invoke("pet:reset-position"),
+  setMousePassthrough: (enabled) => ipcRenderer.send("pet:mouse-passthrough", enabled),
   dragStart: (point) => ipcRenderer.send("pet:drag-start", point),
   dragTo: (point) => ipcRenderer.send("pet:drag-to", point),
   dragEnd: () => ipcRenderer.send("pet:drag-end"),
