@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>桌宠</title>
+    <link rel="stylesheet" href="./pet.css" />
+  </head>
+  <body>
+    <main id="pet-shell" class="pet-shell" aria-label="桌宠角色">
+      <div id="speech" class="speech" hidden>抓到我啦</div>
+      <button id="pet" class="pet" type="button" aria-label="拖动或点击桌宠">
+        <img id="pet-image" src="../assets/pet-cartoon-idle.png" alt="卡通桌宠角色" draggable="false" />
+      </button>
+      <nav id="quick-menu" class="quick-menu" aria-label="桌宠快捷操作">
+        <button type="button" data-action="wave">挥手</button>
+        <button type="button" data-action="sleep">休息</button>
+        <button type="button" id="open-control">设置</button>
+      </nav>
+    </main>
+    <script src="./pet.js"></script>
+  </body>
+</html>

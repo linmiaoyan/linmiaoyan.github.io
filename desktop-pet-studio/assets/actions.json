@@ -1,0 +1,41 @@
+{
+  "character": "uploaded-person-cartoon",
+  "baseImage": "pet-cartoon-idle.png",
+  "confirmed": false,
+  "actions": [
+    {
+      "id": "idle",
+      "name": "待机",
+      "image": "pet-cartoon-idle.png",
+      "implementedBy": "image"
+    },
+    {
+      "id": "wave",
+      "name": "挥手",
+      "image": null,
+      "implementedBy": "css",
+      "pendingConfirmation": true
+    },
+    {
+      "id": "walk",
+      "name": "走路/巡游",
+      "image": null,
+      "implementedBy": "window-motion",
+      "pendingConfirmation": true
+    },
+    {
+      "id": "sleep",
+      "name": "休息",
+      "image": null,
+      "implementedBy": "css",
+      "pendingConfirmation": true
+    },
+    {
+      "id": "caught",
+      "name": "被抓起",
+      "image": null,
+      "implementedBy": "css",
+      "pendingConfirmation": true
+    }
+  ]
+}
