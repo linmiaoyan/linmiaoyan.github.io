@@ -24,6 +24,7 @@ let controlWindow;
 let tray;
 let wanderTimer;
 let isDragging = false;
+let lastWanderActionAt = 0;
 let velocity = { x: 1.4, y: 0.8 };
 
 const settingsPath = () => path.join(app.getPath("userData"), "settings.json");
@@ -219,6 +220,7 @@ function startWanderLoop() {
   if (wanderTimer) clearInterval(wanderTimer);
   if (!settings.movementEnabled || !settings.wanderEnabled) return;
 
+  lastWanderActionAt = 0;
   wanderTimer = setInterval(() => {
     if (!petWindow || isDragging || settings.clickThroughWhenIdle) return;
     const bounds = petWindow.getBounds();
@@ -239,6 +241,12 @@ function startWanderLoop() {
     }
 
     petWindow.setPosition(Math.round(nextX), Math.round(nextY));
+
+    const now = Date.now();
+    if (now - lastWanderActionAt > 1400) {
+      petWindow.webContents.send("pet:action", { id: "walk", auto: true });
+      lastWanderActionAt = now;
+    }
   }, 32);
 }
 

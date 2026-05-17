@@ -1,41 +1,78 @@
 {
   "character": "uploaded-person-cartoon",
   "baseImage": "pet-cartoon-idle.png",
-  "confirmed": false,
+  "selectedVariant": "face-variants/variant-c-sticker.png",
+  "confirmed": true,
   "actions": [
     {
       "id": "idle",
       "name": "待机",
       "image": "pet-cartoon-idle.png",
-      "implementedBy": "image"
+      "implementedBy": "image",
+      "message": "我在这里陪你"
     },
     {
       "id": "wave",
       "name": "挥手",
-      "image": null,
-      "implementedBy": "css",
-      "pendingConfirmation": true
+      "image": "actions/wave.png",
+      "implementedBy": "image",
+      "duration": 1600,
+      "message": "你好呀"
     },
     {
       "id": "walk",
       "name": "走路/巡游",
-      "image": null,
-      "implementedBy": "window-motion",
-      "pendingConfirmation": true
+      "image": "actions/walk.png",
+      "implementedBy": "image-and-window-motion",
+      "duration": 1200,
+      "message": "我去巡逻一下"
     },
     {
       "id": "sleep",
       "name": "休息",
-      "image": null,
-      "implementedBy": "css",
-      "pendingConfirmation": true
+      "image": "actions/sleep.png",
+      "implementedBy": "image",
+      "persistent": true,
+      "message": "我先休息一会儿"
     },
     {
       "id": "caught",
       "name": "被抓起",
-      "image": null,
-      "implementedBy": "css",
-      "pendingConfirmation": true
+      "image": "actions/caught.png",
+      "implementedBy": "image",
+      "message": "抓到我啦"
+    },
+    {
+      "id": "happy",
+      "name": "开心",
+      "image": "actions/happy.png",
+      "implementedBy": "image",
+      "duration": 1600,
+      "message": "今天也要开心"
+    },
+    {
+      "id": "sad",
+      "name": "委屈",
+      "image": "actions/sad.png",
+      "implementedBy": "image",
+      "duration": 1800,
+      "message": "有点小委屈"
+    },
+    {
+      "id": "surprised",
+      "name": "惊讶",
+      "image": "actions/surprised.png",
+      "implementedBy": "image",
+      "duration": 1200,
+      "message": "哇，被发现了"
+    },
+    {
+      "id": "thinking",
+      "name": "思考",
+      "image": "actions/thinking.png",
+      "implementedBy": "image",
+      "duration": 1800,
+      "message": "让我想一想"
     }
   ]
 }
