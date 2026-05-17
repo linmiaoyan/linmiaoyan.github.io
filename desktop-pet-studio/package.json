@@ -1,0 +1,20 @@
+{
+  "name": "desktop-pet-studio",
+  "version": "0.1.0",
+  "description": "A desktop pet prototype with a tray-based controller and draggable cartoon character.",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "check": "node --check src/main.js && node --check src/preload.js && node --check src/pet.js && node --check src/control.js"
+  },
+  "keywords": [
+    "desktop-pet",
+    "electron",
+    "cartoon"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^42.1.0"
+  }
+}

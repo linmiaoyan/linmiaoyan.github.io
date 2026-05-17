@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>桌宠控制台</title>
+    <link rel="stylesheet" href="./control.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="hero">
+        <img src="../assets/pet-cartoon-idle.png" alt="桌宠预览" />
+        <div>
+          <p class="eyebrow">Desktop Pet Studio</p>
+          <h1>桌宠控制台</h1>
+          <p>控制台关闭后会隐藏到系统托盘，桌宠继续在后台陪伴。</p>
+        </div>
+      </header>
+
+      <section class="panel">
+        <h2>常用操作</h2>
+        <div class="action-grid">
+          <button type="button" data-action="wave">挥手</button>
+          <button type="button" data-action="surprise">抓一下</button>
+          <button type="button" data-action="sleep">休息</button>
+          <button type="button" id="reset-position">回到右下角</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>外观</h2>
+        <label class="field">
+          <span>桌宠大小 <strong id="pet-size-value">230px</strong></span>
+          <input id="pet-size" type="range" min="120" max="520" step="10" />
+        </label>
+        <label class="field">
+          <span>透明度 <strong id="opacity-value">100%</strong></span>
+          <input id="opacity" type="range" min="0.35" max="1" step="0.05" />
+        </label>
+      </section>
+
+      <section class="panel">
+        <h2>行为</h2>
+        <label class="toggle">
+          <input id="catch-mode-enabled" type="checkbox" />
+          <span>允许鼠标抓起/拖拽桌宠</span>
+        </label>
+        <label class="toggle">
+          <input id="movement-enabled" type="checkbox" />
+          <span>允许桌宠在桌面上自动活动</span>
+        </label>
+        <label class="toggle">
+          <input id="wander-enabled" type="checkbox" />
+          <span>启用巡游移动</span>
+        </label>
+        <label class="field">
+          <span>巡游速度 <strong id="wander-speed-value">1.0x</strong></span>
+          <input id="wander-speed" type="range" min="0.2" max="3" step="0.1" />
+        </label>
+        <label class="toggle">
+          <input id="snap-to-edges" type="checkbox" />
+          <span>松手后吸附到屏幕边缘</span>
+        </label>
+        <label class="toggle">
+          <input id="click-through-when-idle" type="checkbox" />
+          <span>闲置时鼠标穿透</span>
+        </label>
+      </section>
+
+      <section class="panel">
+        <h2>系统</h2>
+        <label class="toggle">
+          <input id="always-on-top" type="checkbox" />
+          <span>保持桌宠置顶</span>
+        </label>
+        <label class="toggle">
+          <input id="launch-at-login" type="checkbox" />
+          <span>开机自启</span>
+        </label>
+        <label class="toggle">
+          <input id="start-in-background" type="checkbox" />
+          <span>启动时控制台默认隐藏到后台</span>
+        </label>
+        <label class="toggle">
+          <input id="show-control-on-start" type="checkbox" />
+          <span>启动时显示控制台</span>
+        </label>
+      </section>
+
+      <footer class="note">
+        当前动作图先使用你确认前的卡通主图；确认后可继续生成挥手、走路、睡觉、被抓等动作图片并接入。
+      </footer>
+    </main>
+    <script src="./control.js"></script>
+  </body>
+</html>
