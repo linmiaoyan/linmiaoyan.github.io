@@ -73,7 +73,9 @@
 
     /* Hero */
     .hero { position: relative; overflow: hidden; background: linear-gradient(135deg, var(--primary), rgba(27,58,75,0.9), rgba(27,58,75,0.8)); }
-    .hero-bg { position: absolute; inset: 0; opacity: 0.2; }
+    .hero-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.35; }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(27,58,75,0.7), rgba(27,58,75,0.85), rgba(27,58,75,0.75)); }
+    .hero-bg { position: absolute; inset: 0; opacity: 0.15; }
     .hero-blob1 { position: absolute; left: 25%; top: 25%; width: 16rem; height: 16rem; border-radius: 50%; background: rgba(212,168,67,0.3); filter: blur(64px); }
     .hero-blob2 { position: absolute; bottom: 25%; right: 25%; width: 12rem; height: 12rem; border-radius: 50%; background: rgba(192,87,70,0.2); filter: blur(64px); }
     .hero-content { position: relative; padding: 5rem 1rem; }
@@ -301,6 +303,10 @@
 
 <!-- Hero -->
 <section class="hero" id="hero">
+  <video class="hero-video" autoplay muted loop playsinline>
+    <source src="promo.mp4" type="video/mp4">
+  </video>
+  <div class="hero-overlay"></div>
   <div class="hero-bg">
     <div class="hero-blob1"></div>
     <div class="hero-blob2"></div>
