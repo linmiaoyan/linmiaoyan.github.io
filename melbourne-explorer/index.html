@@ -73,9 +73,15 @@
 
     /* Hero */
     .hero { position: relative; overflow: hidden; background: linear-gradient(135deg, var(--primary), rgba(27,58,75,0.9), rgba(27,58,75,0.8)); }
-    .hero-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.35; }
-    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(27,58,75,0.7), rgba(27,58,75,0.85), rgba(27,58,75,0.75)); }
-    .hero-bg { position: absolute; inset: 0; opacity: 0.15; }
+    .hero-bg { position: absolute; inset: 0; opacity: 0.2; }
+    .hero-grid { display: flex; flex-direction: column; gap: 2.5rem; align-items: center; }
+    @media (min-width: 1024px) { .hero-grid { flex-direction: row; } }
+    .hero-text { flex: 1; max-width: 42rem; }
+    .hero-video-wrap { flex-shrink: 0; width: 100%; max-width: 24rem; }
+    @media (min-width: 1024px) { .hero-video-wrap { width: 24rem; } }
+    .hero-video-frame { position: relative; border-radius: 1rem; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); }
+    .hero-video-frame video { display: block; width: 100%; height: auto; }
+    .hero-video-label { margin-top: 0.75rem; text-align: center; font-size: 0.75rem; color: rgba(255,255,255,0.5); letter-spacing: 0.05em; }
     .hero-blob1 { position: absolute; left: 25%; top: 25%; width: 16rem; height: 16rem; border-radius: 50%; background: rgba(212,168,67,0.3); filter: blur(64px); }
     .hero-blob2 { position: absolute; bottom: 25%; right: 25%; width: 12rem; height: 12rem; border-radius: 50%; background: rgba(192,87,70,0.2); filter: blur(64px); }
     .hero-content { position: relative; padding: 5rem 1rem; }
@@ -303,31 +309,37 @@
 
 <!-- Hero -->
 <section class="hero" id="hero">
-  <video class="hero-video" autoplay muted loop playsinline>
-    <source src="promo.mp4" type="video/mp4">
-  </video>
-  <div class="hero-overlay"></div>
   <div class="hero-bg">
     <div class="hero-blob1"></div>
     <div class="hero-blob2"></div>
   </div>
   <div class="container hero-content">
-    <div style="max-width: 42rem;">
-      <div class="hero-badge">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        Australia's Most Liveable City
+    <div class="hero-grid">
+      <div class="hero-text">
+        <div class="hero-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Australia's Most Liveable City
+        </div>
+        <h1>Discover<br><span class="accent">Melbourne</span></h1>
+        <p>纪念品精选、本地好物、手作体验——从三个维度探索墨尔本，发现属于你的城市记忆。</p>
+        <div class="hero-btns">
+          <button class="btn-primary" onclick="scrollToSection('explore')">
+            开始探索
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+          <button class="btn-outline" onclick="scrollToSection('merchant')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            快速退税
+          </button>
+        </div>
       </div>
-      <h1>Discover<br><span class="accent">Melbourne</span></h1>
-      <p>纪念品精选、本地好物、手作体验——从三个维度探索墨尔本，发现属于你的城市记忆。</p>
-      <div class="hero-btns">
-        <button class="btn-primary" onclick="scrollToSection('explore')">
-          开始探索
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </button>
-        <button class="btn-outline" onclick="scrollToSection('merchant')">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-          快速退税
-        </button>
+      <div class="hero-video-wrap">
+        <div class="hero-video-frame">
+          <video autoplay muted loop playsinline>
+            <source src="promo.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="hero-video-label">Melbourne Promo</div>
       </div>
     </div>
   </div>
