@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Melbourne Travel Guide — Discover. Shop. Refund.</title>
+  <meta name="description" content="纪念品精选、本地好物、手作体验——从三个维度探索墨尔本，发现属于你的城市记忆。">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <style>
+    :root {
+      --bg: #FAF8F5;
+      --fg: #2D3436;
+      --primary: #1B3A4B;
+      --primary-fg: #FFFFFF;
+      --secondary: #D4A843;
+      --secondary-fg: #1B3A4B;
+      --accent: #C05746;
+      --accent-fg: #FFFFFF;
+      --muted: #F0EDE8;
+      --muted-fg: #636E72;
+      --border: #E0DCD5;
+      --card: #FFFFFF;
+      --card-fg: #2D3436;
+      --radius-lg: 0.75rem;
+      --radius-xl: 1rem;
+      --radius-2xl: 1.25rem;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      line-height: 1.6;
+    }
+    .font-serif { font-family: 'Playfair Display', Georgia, serif; }
+    a { text-decoration: none; color: inherit; }
+    img { display: block; max-width: 100%; }
+    .container { max-width: 72rem; margin: 0 auto; padding: 0 1rem; }
+    @media (min-width: 640px) { .container { padding: 0 1.5rem; } }
+
+    /* Navbar */
+    .navbar {
+      position: sticky; top: 0; z-index: 50;
+      border-bottom: 1px solid var(--border);
+      background: rgba(250, 248, 245, 0.8);
+      backdrop-filter: blur(12px);
+    }
+    .navbar-inner {
+      height: 4rem; display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo { display: flex; align-items: center; gap: 0.5rem; }
+    .logo-icon {
+      width: 2.25rem; height: 2.25rem; border-radius: 0.5rem;
+      background: var(--primary); display: flex; align-items: center; justify-content: center;
+    }
+    .logo-text-primary { font-family: 'Playfair Display', serif; font-size: 1.125rem; font-weight: 600; color: var(--primary); }
+    .logo-text-sub { font-size: 0.625rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted-fg); }
+    .nav-links { display: none; align-items: center; gap: 0.25rem; }
+    @media (min-width: 640px) { .nav-links { display: flex; } }
+    .nav-link {
+      border-radius: 0.5rem; padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 500;
+      color: var(--muted-fg); transition: all 0.2s; cursor: pointer;
+    }
+    .nav-link:hover { background: var(--muted); color: var(--fg); }
+    .nav-link.active { background: var(--primary); color: var(--primary-fg); }
+    .mobile-toggle { display: block; border: none; background: none; cursor: pointer; padding: 0.5rem; color: var(--muted-fg); }
+    @media (min-width: 640px) { .mobile-toggle { display: none; } }
+    .mobile-menu { display: none; border-top: 1px solid var(--border); padding: 0.75rem 1rem; }
+    @media (min-width: 640px) { .mobile-menu { display: none !important; } }
+    .mobile-menu.open { display: block; }
+    .mobile-menu a { display: block; border-radius: 0.5rem; padding: 0.625rem 1rem; font-size: 0.875rem; font-weight: 500; color: var(--muted-fg); }
+
+    /* Hero */
+    .hero { position: relative; overflow: hidden; background: linear-gradient(135deg, var(--primary), rgba(27,58,75,0.9), rgba(27,58,75,0.8)); }
+    .hero-bg { position: absolute; inset: 0; opacity: 0.2; }
+    .hero-blob1 { position: absolute; left: 25%; top: 25%; width: 16rem; height: 16rem; border-radius: 50%; background: rgba(212,168,67,0.3); filter: blur(64px); }
+    .hero-blob2 { position: absolute; bottom: 25%; right: 25%; width: 12rem; height: 12rem; border-radius: 50%; background: rgba(192,87,70,0.2); filter: blur(64px); }
+    .hero-content { position: relative; padding: 5rem 1rem; }
+    @media (min-width: 640px) { .hero-content { padding: 7rem 1.5rem; } }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem; border-radius: 9999px;
+      border: 1px solid rgba(212,168,67,0.3); background: rgba(212,168,67,0.1);
+      padding: 0.25rem 0.75rem; font-size: 0.75rem; font-weight: 500; color: var(--secondary); margin-bottom: 1rem;
+    }
+    .hero h1 { font-family: 'Playfair Display', serif; font-size: 2.5rem; font-weight: 700; line-height: 1.1; color: #fff; }
+    @media (min-width: 640px) { .hero h1 { font-size: 3rem; } }
+    @media (min-width: 1024px) { .hero h1 { font-size: 3.75rem; } }
+    .hero h1 .accent { color: var(--secondary); }
+    .hero p { margin-top: 1.5rem; max-width: 32rem; font-size: 1rem; color: rgba(255,255,255,0.7); }
+    @media (min-width: 640px) { .hero p { font-size: 1.125rem; } }
+    .hero-btns { margin-top: 2rem; display: flex; flex-wrap: wrap; gap: 0.75rem; }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 0.5rem; border-radius: 0.75rem;
+      background: var(--secondary); padding: 0.75rem 1.5rem; font-size: 0.875rem; font-weight: 600;
+      color: var(--primary); transition: all 0.2s; cursor: pointer; border: none;
+    }
+    .btn-primary:hover { background: rgba(212,168,67,0.9); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+    .btn-outline {
+      display: inline-flex; align-items: center; gap: 0.5rem; border-radius: 0.75rem;
+      border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1);
+      padding: 0.75rem 1.5rem; font-size: 0.875rem; font-weight: 600; color: #fff;
+      backdrop-filter: blur(4px); transition: all 0.2s; cursor: pointer;
+    }
+    .btn-outline:hover { background: rgba(255,255,255,0.2); }
+
+    /* Section */
+    .section { padding: 4rem 0; }
+    .section-header { margin-bottom: 2rem; }
+    .section-tag {
+      display: inline-flex; align-items: center; gap: 0.5rem; border-radius: 9999px;
+      padding: 0.25rem 0.75rem; font-size: 0.75rem; font-weight: 500; margin-bottom: 0.5rem;
+    }
+    .section-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; color: var(--primary); }
+    @media (min-width: 640px) { .section-title { font-size: 1.875rem; } }
+    .section-sub { margin-top: 0.25rem; font-size: 0.875rem; color: var(--muted-fg); }
+
+    /* Zone Overview */
+    .zone-overview { border-bottom: 1px solid var(--border); background: var(--card); }
+    .zone-grid { display: grid; grid-template-columns: 1fr; }
+    @media (min-width: 640px) { .zone-grid { grid-template-columns: repeat(3, 1fr); } }
+    .zone-card {
+      display: flex; flex-direction: column; align-items: center; text-align: center;
+      padding: 2rem 1.5rem; transition: background 0.2s; cursor: pointer;
+    }
+    @media (min-width: 640px) { .zone-card:not(:last-child) { border-right: 1px solid var(--border); } }
+    .zone-card:hover { background: rgba(240,237,232,0.5); }
+    .zone-icon { width: 3rem; height: 3rem; border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; }
+    .zone-card h3 { margin-top: 0.75rem; font-family: 'Playfair Display', serif; font-size: 1.125rem; font-weight: 600; color: var(--fg); }
+    .zone-card .en { font-size: 0.75rem; color: var(--muted-fg); }
+    .zone-card .desc { margin-top: 0.25rem; font-size: 0.875rem; color: var(--muted-fg); }
+    .zone-card .count { margin-top: 0.5rem; font-size: 0.75rem; font-weight: 500; color: var(--primary); }
+
+    /* Grid */
+    .grid { display: grid; gap: 1.25rem; }
+    .grid-3 { grid-template-columns: 1fr; }
+    @media (min-width: 640px) { .grid-3 { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1024px) { .grid-3 { grid-template-columns: repeat(3, 1fr); } }
+
+    /* Card */
+    .card {
+      overflow: hidden; border-radius: var(--radius-2xl); border: 1px solid var(--border);
+      background: var(--card); transition: transform 0.25s, box-shadow 0.25s;
+    }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px -8px rgba(27,58,75,0.15); }
+    .card-img { position: relative; height: 11rem; overflow: hidden; background: var(--muted); }
+    .card-img img { width: 100%; height: 100%; object-fit: cover; }
+    .card-tags { position: absolute; bottom: 0.75rem; left: 0.75rem; display: flex; flex-wrap: wrap; gap: 0.25rem; }
+    .card-tag-sm { border-radius: 9999px; background: rgba(255,255,255,0.9); padding: 0.125rem 0.5rem; font-size: 0.625rem; font-weight: 500; color: var(--primary); }
+    .card-body { padding: 1rem; }
+    .card-body h4 { font-weight: 600; color: var(--fg); }
+    .card-body .en { font-size: 0.75rem; color: var(--muted-fg); margin-top: 0.125rem; }
+    .card-body .desc { margin-top: 0.5rem; font-size: 0.875rem; color: var(--muted-fg); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .card-footer { margin-top: 0.75rem; display: flex; align-items: center; justify-content: space-between; }
+    .card-price { font-size: 0.75rem; font-weight: 500; color: var(--secondary); }
+    .card-loc-count { font-size: 0.75rem; color: var(--muted-fg); }
+
+    /* Daily card */
+    .daily-card .card-img { height: 9rem; }
+    .daily-price-badge { position: absolute; right: 0.75rem; top: 0.75rem; border-radius: 9999px; background: var(--secondary); padding: 0.25rem 0.625rem; font-size: 0.625rem; font-weight: 700; color: var(--primary); }
+    .daily-tip { margin-top: 0.75rem; border-radius: 0.5rem; background: rgba(212,168,67,0.05); padding: 0.75rem; font-size: 0.75rem; color: var(--secondary); }
+    .daily-locs { margin-top: 1rem; border-top: 1px solid rgba(224,220,213,0.5); padding-top: 0.75rem; }
+    .daily-locs-label { font-size: 0.6875rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted-fg); margin-bottom: 0.5rem; }
+    .daily-loc { font-size: 0.75rem; color: var(--muted-fg); margin-bottom: 0.375rem; }
+    .daily-loc strong { color: var(--fg); font-weight: 500; }
+
+    /* Activity card */
+    .activity-card { display: flex; flex-direction: column; }
+    @media (min-width: 1024px) { .activity-card { flex-direction: row; } }
+    .activity-img { position: relative; height: 14rem; overflow: hidden; background: var(--muted); flex-shrink: 0; }
+    @media (min-width: 1024px) { .activity-img { width: 18rem; height: auto; } }
+    .activity-duration { position: absolute; bottom: 0.75rem; right: 0.75rem; border-radius: 9999px; background: rgba(255,255,255,0.9); padding: 0.25rem 0.75rem; font-size: 0.75rem; font-weight: 500; color: var(--primary); }
+    .activity-body { padding: 1.5rem; flex: 1; }
+    @media (min-width: 1024px) { .activity-body { padding: 2rem; } }
+    .activity-body h4 { font-family: 'Playfair Display', serif; font-size: 1.125rem; font-weight: 700; color: var(--primary); }
+    @media (min-width: 640px) { .activity-body h4 { font-size: 1.25rem; } }
+    .activity-body .en { font-size: 0.75rem; color: var(--muted-fg); margin-top: 0.125rem; }
+    .activity-body .desc { margin-top: 0.75rem; font-size: 0.875rem; color: var(--muted-fg); }
+    .highlights-label { margin-top: 1rem; font-size: 0.6875rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent); }
+    .highlights { margin-top: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .highlight { display: inline-flex; align-items: center; gap: 0.25rem; border-radius: 9999px; background: rgba(192,87,70,0.05); padding: 0.25rem 0.75rem; font-size: 0.75rem; color: var(--accent); }
+    .activity-locs { margin-top: 1.25rem; border-top: 1px solid rgba(224,220,213,0.5); padding-top: 1rem; }
+    .activity-loc { font-size: 0.75rem; color: var(--muted-fg); margin-bottom: 0.5rem; display: flex; align-items: flex-start; gap: 0.5rem; }
+    .activity-loc strong { color: var(--fg); font-weight: 500; }
+
+    /* Tags */
+    .tag { border-radius: 9999px; background: var(--muted); padding: 0.25rem 0.625rem; font-size: 0.625rem; font-weight: 500; color: var(--muted-fg); }
+    .tag-secondary { background: rgba(212,168,67,0.1); color: var(--secondary); font-weight: 600; }
+    .tag-accent { background: rgba(192,87,70,0.1); color: var(--accent); font-weight: 600; }
+
+    /* Divider */
+    .divider { margin: 4rem 0; display: flex; align-items: center; gap: 1rem; }
+    .divider-line { height: 1px; flex: 1; background: var(--border); }
+    .divider-text { font-size: 0.75rem; color: var(--muted-fg); }
+
+    /* Refund Section */
+    .refund-section { border-top: 1px solid var(--border); background: rgba(240,237,232,0.5); }
+    .refund-steps { margin-top: 2.5rem; display: grid; gap: 1.5rem; }
+    @media (min-width: 640px) { .refund-steps { grid-template-columns: repeat(3, 1fr); } }
+    .refund-step { border-radius: var(--radius-2xl); border: 1px solid var(--border); background: var(--card); padding: 1.5rem; text-align: center; }
+    .refund-step-icon { width: 3rem; height: 3rem; margin: 0 auto; border-radius: 0.75rem; background: rgba(27,58,75,0.05); color: var(--primary); display: flex; align-items: center; justify-content: center; }
+    .refund-step-num { margin-top: 1rem; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; color: var(--secondary); }
+    .refund-step h4 { margin-top: 0.5rem; font-weight: 600; color: var(--fg); }
+    .refund-step p { margin-top: 0.5rem; font-size: 0.875rem; color: var(--muted-fg); }
+
+    /* Merchant form */
+    .merchant-grid { display: grid; gap: 2rem; }
+    @media (min-width: 1024px) { .merchant-grid { grid-template-columns: 1fr 1fr; } }
+    .form-card { border-radius: var(--radius-2xl); border: 1px solid var(--border); background: var(--card); padding: 1.5rem; }
+    @media (min-width: 640px) { .form-card { padding: 2rem; } }
+    .form-group { margin-bottom: 1rem; }
+    .form-label { display: block; margin-bottom: 0.375rem; font-size: 0.875rem; font-weight: 500; color: var(--fg); }
+    .form-label .req { color: var(--accent); }
+    .form-input {
+      width: 100%; border-radius: 0.5rem; border: 1px solid var(--border);
+      background: var(--bg); padding: 0.625rem 1rem; font-size: 0.875rem;
+      color: var(--fg); outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+      font-family: inherit;
+    }
+    .form-input:focus { border-color: var(--secondary); box-shadow: 0 0 0 2px rgba(212,168,67,0.2); }
+    .form-hint { margin-top: 0.25rem; font-size: 0.75rem; color: var(--muted-fg); }
+    .form-gst-hint { margin-top: 0.25rem; font-size: 0.75rem; color: var(--secondary); }
+    .form-error { border-radius: 0.5rem; background: rgba(192,87,70,0.05); padding: 0.75rem 1rem; font-size: 0.875rem; color: var(--accent); margin-bottom: 1rem; }
+    .btn-submit {
+      width: 100%; border-radius: 0.75rem; background: var(--primary); color: var(--primary-fg);
+      padding: 0.75rem; font-size: 0.875rem; font-weight: 600; border: none; cursor: pointer;
+      transition: background 0.2s; font-family: inherit;
+    }
+    .btn-submit:hover { background: rgba(27,58,75,0.9); }
+    .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+    .qr-display { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+    .qr-placeholder { width: 5rem; height: 5rem; margin: 0 auto; border-radius: var(--radius-2xl); background: var(--muted); display: flex; align-items: center; justify-content: center; color: #C5BFB5; }
+    .qr-result { text-align: center; width: 100%; }
+    .qr-success-badge { display: inline-flex; align-items: center; gap: 0.5rem; border-radius: 9999px; background: #f0fdf4; padding: 0.25rem 0.75rem; font-size: 0.75rem; font-weight: 500; color: #15803d; }
+    .qr-img-wrapper { margin-top: 1.5rem; display: inline-block; border: 2px solid var(--border); border-radius: var(--radius-2xl); background: #fff; padding: 1rem; }
+    .qr-info { margin-top: 1.5rem; border-radius: var(--radius-xl); background: rgba(240,237,232,0.5); padding: 1rem; text-align: left; }
+    .qr-info-row { display: flex; justify-content: space-between; font-size: 0.875rem; margin-bottom: 0.5rem; }
+    .qr-info-row:last-child { margin-bottom: 0; }
+    .qr-info-label { color: var(--muted-fg); }
+    .qr-info-value { font-weight: 500; color: var(--fg); }
+
+    /* Footer */
+    .footer { border-top: 1px solid var(--border); background: var(--primary); color: var(--primary-fg); }
+    .footer-inner { padding: 3rem 0; }
+    .footer-grid { display: grid; gap: 2rem; }
+    @media (min-width: 640px) { .footer-grid { grid-template-columns: repeat(3, 1fr); } }
+    .footer h3 { font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 600; }
+    .footer p { margin-top: 0.5rem; font-size: 0.875rem; opacity: 0.7; }
+    .footer h4 { font-size: 0.875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.6; }
+    .footer a { display: block; margin-top: 0.5rem; font-size: 0.875rem; opacity: 0.8; transition: opacity 0.2s; cursor: pointer; }
+    .footer a:hover { opacity: 1; }
+    .footer-bottom { margin-top: 2.5rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem; text-align: center; font-size: 0.75rem; opacity: 0.5; }
+
+    /* Section anchor offset */
+    .anchor { scroll-margin-top: 5rem; }
+
+    /* Tab pills */
+    .tab-pills { margin-top: 1.5rem; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .tab-pill { border-radius: 9999px; padding: 0.5rem 1rem; font-size: 0.75rem; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .tab-pill.active { background: var(--primary); color: var(--primary-fg); }
+    .tab-pill:not(.active) { border: 1px solid var(--border); background: var(--card); color: var(--muted-fg); }
+    .tab-pill:not(.active):hover { background: var(--muted); }
+
+    /* SVG icon helper */
+    .icon { display: inline-block; vertical-align: middle; }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<header class="navbar">
+  <nav class="container navbar-inner">
+    <a href="#" class="logo" onclick="scrollToSection('hero'); return false;">
+      <div class="logo-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D4A843" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+        </svg>
+      </div>
+      <div>
+        <div class="logo-text-primary">Melbourne</div>
+        <div class="logo-text-sub">Travel Guide</div>
+      </div>
+    </a>
+    <div class="nav-links">
+      <a class="nav-link" onclick="scrollToSection('hero')">Home</a>
+      <a class="nav-link" onclick="scrollToSection('explore')">Explore</a>
+      <a class="nav-link" onclick="scrollToSection('merchant')">Quick Refund</a>
+    </div>
+    <button class="mobile-toggle" onclick="toggleMobileMenu()">
+      <svg id="menu-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/>
+      </svg>
+    </button>
+  </nav>
+  <div class="mobile-menu" id="mobile-menu">
+    <a onclick="scrollToSection('hero'); toggleMobileMenu();">Home</a>
+    <a onclick="scrollToSection('explore'); toggleMobileMenu();">Explore <span style="font-size:0.75rem;color:var(--muted-fg)">发现墨尔本</span></a>
+    <a onclick="scrollToSection('merchant'); toggleMobileMenu();">Quick Refund <span style="font-size:0.75rem;color:var(--muted-fg)">快速退税</span></a>
+  </div>
+</header>
+
+<!-- Hero -->
+<section class="hero" id="hero">
+  <div class="hero-bg">
+    <div class="hero-blob1"></div>
+    <div class="hero-blob2"></div>
+  </div>
+  <div class="container hero-content">
+    <div style="max-width: 42rem;">
+      <div class="hero-badge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        Australia's Most Liveable City
+      </div>
+      <h1>Discover<br><span class="accent">Melbourne</span></h1>
+      <p>纪念品精选、本地好物、手作体验——从三个维度探索墨尔本，发现属于你的城市记忆。</p>
+      <div class="hero-btns">
+        <button class="btn-primary" onclick="scrollToSection('explore')">
+          开始探索
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+        <button class="btn-outline" onclick="scrollToSection('merchant')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          快速退税
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Zone Overview -->
+<section class="zone-overview">
+  <div class="container">
+    <div class="zone-grid">
+      <div class="zone-card" onclick="scrollToSection('traveler')">
+        <div class="zone-icon" style="background:rgba(27,58,75,0.05);color:var(--primary)">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
+        <h3>旅客专区</h3>
+        <div class="en">Traveler's Picks</div>
+        <div class="desc">经典纪念品 & 必买好物</div>
+        <div class="count">5 件精选</div>
+      </div>
+      <div class="zone-card" onclick="scrollToSection('daily')">
+        <div class="zone-icon" style="background:rgba(212,168,67,0.1);color:var(--secondary)">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        </div>
+        <h3>日常生活</h3>
+        <div class="en">Daily Life</div>
+        <div class="desc">便宜好物 & 本地人也在用</div>
+        <div class="count">5 件好物</div>
+      </div>
+      <div class="zone-card" onclick="scrollToSection('activities')">
+        <div class="zone-icon" style="background:rgba(192,87,70,0.1);color:var(--accent)">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        </div>
+        <h3>常见活动</h3>
+        <div class="en">Activities</div>
+        <div class="desc">手作体验 & 工作坊</div>
+        <div class="count">6 种体验</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Explore Section -->
+<section class="section" id="explore">
+  <div class="container">
+    <div class="section-header" style="text-align:center;">
+      <h2 class="section-title" style="font-size:1.875rem;">发现墨尔本</h2>
+      <p class="section-sub" style="max-width:28rem;margin:0.75rem auto 0;">从三个维度探索墨尔本——旅客纪念品、本地日常好物、手作体验活动，找到属于你的城市记忆。</p>
+      <div class="tab-pills" style="justify-content:center;">
+        <span class="tab-pill active" onclick="scrollToSection('traveler')">旅客专区</span>
+        <span class="tab-pill" onclick="scrollToSection('daily')">日常生活</span>
+        <span class="tab-pill" onclick="scrollToSection('activities')">常见活动</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Zone 1: Traveler's Picks -->
+<section class="section" id="traveler" style="padding-top:0;">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag" style="background:rgba(27,58,75,0.05);color:var(--primary)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        旅客专区
+      </div>
+      <h2 class="section-title">经典纪念品 & 必买好物</h2>
+      <p class="section-sub">最具墨尔本特色的旅行纪念品，把城市记忆带回家</p>
+    </div>
+    <div class="grid grid-3" id="traveler-grid"></div>
+  </div>
+</section>
+
+<!-- Zone 2: Daily Life -->
+<section class="section" id="daily" style="background:rgba(240,237,232,0.3);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag" style="background:rgba(212,168,67,0.1);color:var(--secondary)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        日常生活
+      </div>
+      <h2 class="section-title">便宜好物 & 本地人也在用</h2>
+      <p class="section-sub">平价又实用的墨尔本日常好物，像本地人一样生活</p>
+    </div>
+    <div class="grid grid-3" id="daily-grid"></div>
+  </div>
+</section>
+
+<!-- Zone 3: Activities -->
+<section class="section" id="activities">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag" style="background:rgba(192,87,70,0.1);color:var(--accent)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        常见活动
+      </div>
+      <h2 class="section-title">手作体验 & 工作坊</h2>
+      <p class="section-sub">不只是买买买——动手体验墨尔本的生活方式</p>
+    </div>
+    <div id="activities-list" style="display:flex;flex-direction:column;gap:1.5rem;"></div>
+  </div>
+</section>
+
+<!-- Refund Steps -->
+<section class="refund-section section">
+  <div class="container" style="text-align:center;">
+    <h2 class="section-title">快速退税</h2>
+    <p class="section-sub" style="max-width:28rem;margin:0.5rem auto 0;">商家生成二维码，游客在 TRS 软件中扫描一下即可完成退税信息录入</p>
+    <div class="refund-steps">
+      <div class="refund-step">
+        <div class="refund-step-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </div>
+        <div class="refund-step-num">STEP 01</div>
+        <h4>商家录入信息</h4>
+        <p>输入店名、ABN、金额和商品信息</p>
+      </div>
+      <div class="refund-step">
+        <div class="refund-step-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        </div>
+        <div class="refund-step-num">STEP 02</div>
+        <h4>生成二维码</h4>
+        <p>系统自动生成包含退税信息的唯一二维码</p>
+      </div>
+      <div class="refund-step">
+        <div class="refund-step-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <div class="refund-step-num">STEP 03</div>
+        <h4>游客扫码完成</h4>
+        <p>在 TRS 软件中扫描二维码，填写个人信息即可</p>
+      </div>
+    </div>
+    <div style="margin-top:2.5rem;">
+      <button class="btn-primary" style="background:var(--primary);color:var(--primary-fg);" onclick="scrollToSection('merchant')">
+        进入快速退税
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- Merchant QR Generator -->
+<section class="section" id="merchant">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag" style="background:rgba(27,58,75,0.1);color:var(--primary)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Quick Tax Refund
+      </div>
+      <h2 class="section-title">For Merchants — Generate QR Code</h2>
+      <p class="section-sub">Fill in the purchase information to generate a refund QR code.</p>
+    </div>
+    <div class="merchant-grid">
+      <!-- Form -->
+      <div class="form-card">
+        <div class="form-group">
+          <label class="form-label">Store Name <span class="req">*</span></label>
+          <input type="text" id="m-store" class="form-input" placeholder="e.g. Melbourne Coffee Roasters">
+        </div>
+        <div class="form-group">
+          <label class="form-label">ABN (Australian Business Number) <span class="req">*</span></label>
+          <input type="text" id="m-abn" class="form-input" placeholder="e.g. 12 345 678 901">
+          <div class="form-hint">Your registered ABN for TRS verification</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Total Amount (AUD, incl. GST) <span class="req">*</span></label>
+          <div style="position:relative;">
+            <span style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);font-size:0.875rem;color:var(--muted-fg)">$</span>
+            <input type="number" id="m-amount" class="form-input" placeholder="0.00" min="0" step="0.01" style="padding-left:2rem;" oninput="updateGST()">
+          </div>
+          <div class="form-gst-hint" id="gst-hint" style="display:none;"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Item Description <span class="req">*</span></label>
+          <textarea id="m-items" class="form-input" placeholder="e.g. 2x UGG Boots, 1x Coffee Gift Set" rows="2" style="resize:none;"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Receipt / Invoice Number</label>
+          <input type="text" id="m-receipt" class="form-input" placeholder="Auto-generated if empty">
+        </div>
+        <div id="m-error" class="form-error" style="display:none;"></div>
+        <button class="btn-submit" id="m-submit" onclick="generateQR()">Generate QR Code</button>
+      </div>
+      <!-- QR Display -->
+      <div class="form-card qr-display" id="qr-display">
+        <div id="qr-empty">
+          <div class="qr-placeholder">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          </div>
+          <h4 style="margin-top:1rem;font-weight:500;color:var(--fg)">No QR Code Yet</h4>
+          <p style="margin-top:0.5rem;max-width:20rem;font-size:0.875rem;color:var(--muted-fg)">Fill in the transaction details on the left and click "Generate QR Code" to create a refund QR code.</p>
+        </div>
+        <div id="qr-result" style="display:none;width:100%;">
+          <div class="qr-success-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            QR Code Generated Successfully
+          </div>
+          <div class="qr-img-wrapper">
+            <div id="qrcode"></div>
+          </div>
+          <div class="qr-info" id="qr-info"></div>
+          <p style="margin-top:1rem;font-size:0.75rem;color:var(--muted-fg)">Tourists can scan this QR code in the TRS app to complete refund registration.</p>
+          <button class="btn-submit" style="background:transparent;border:1px solid var(--border);color:var(--muted-fg);margin-top:1rem;width:auto;padding:0.5rem 1rem;" onclick="resetForm()">New Transaction</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container footer-inner">
+    <div class="footer-grid">
+      <div>
+        <h3>Melbourne</h3>
+        <p>Your guide to the best souvenirs and hassle-free tax refund in Australia's most liveable city.</p>
+      </div>
+      <div>
+        <h4>Quick Links</h4>
+        <a onclick="scrollToSection('explore')">Explore Melbourne</a>
+        <a onclick="scrollToSection('merchant')">Merchant Tax Refund</a>
+      </div>
+      <div>
+        <h4>About TRS</h4>
+        <p>Tourist Refund Scheme (TRS) allows you to claim a refund of the GST included in goods you take out of Australia.</p>
+      </div>
+    </div>
+    <div class="footer-bottom">Melbourne Travel Guide — Discover. Shop. Refund.</div>
+  </div>
+</footer>
+
+<script>
+// ============ Data ============
+const travelerPicks = [
+  {
+    id:'indigenous-art', name:'原住民艺术品', nameEn:'Indigenous Art & Crafts',
+    description:'澳洲原住民拥有超过6万年的文化传承。手绘点画、回旋镖、迪吉里杜管等手工艺品是最具文化深度的纪念品，每一件都承载着"梦幻时代"的古老故事。',
+    priceRange:'AUD $25 - $500+', image:'https://images.unsplash.com/photo-1602564776078-69e86adae468?w=600&h=400&fit=crop',
+    tags:['文化','手工艺','收藏'],
+    locations:[
+      {name:'Queen Victoria Market - Aboriginal Art Stall',address:'Queen St, Melbourne VIC 3000'},
+      {name:'Flinders Lane Gallery',address:'11 Flinders Ln, Melbourne VIC 3000'},
+      {name:'Bunjilaka Aboriginal Cultural Centre',address:'Melbourne Museum, Carlton VIC 3053'}
+    ]
+  },
+  {
+    id:'ugg-boots', name:'UGG 雪地靴 & 羊皮制品', nameEn:'UGG Boots & Sheepskin Products',
+    description:'源自澳洲的 UGG 雪地靴采用优质美利奴羊皮制作，保暖透气。在墨尔本购买正宗澳洲制造的 UGG 靴，价格比国内优惠且款式齐全。',
+    priceRange:'AUD $100 - $350', image:'https://images.unsplash.com/photo-1605733160334-5add4ae76c44?w=600&h=400&fit=crop',
+    tags:['服饰','保暖','澳洲制造'],
+    locations:[
+      {name:'UGG Since 1974 - Melbourne Central',address:'Melbourne Central Shopping Centre, 211 La Trobe St'},
+      {name:'DFO South Wharf',address:'20 Convention Centre Pl, South Wharf VIC 3006'},
+      {name:'Emporium Melbourne',address:'287 Lonsdale St, Melbourne VIC 3000'}
+    ]
+  },
+  {
+    id:'afl-merch', name:'AFL 橄榄球联盟周边', nameEn:'AFL Merchandise',
+    description:'澳式橄榄球（AFL）是墨尔本的灵魂运动。MCG 球场旁的官方商店提供各队球衣、围巾、帽子等，赛季（3-9月）氛围最为热烈。',
+    priceRange:'AUD $30 - $200', image:'https://images.unsplash.com/photo-1562843916-23fed48e3b15?w=600&h=400&fit=crop',
+    tags:['运动','潮流','墨尔本文化'],
+    locations:[
+      {name:'AFL Official Store - MCG',address:'Melbourne Cricket Ground, Yarra Park, East Melbourne'},
+      {name:'Melbourne Sport & Leisure',address:'Federation Square, Melbourne VIC 3000'},
+      {name:'Chapel Street, South Yarra',address:'Chapel St, South Yarra VIC 3141'}
+    ]
+  },
+  {
+    id:'yarra-wine', name:'Yarra Valley 葡萄酒', nameEn:'Yarra Valley Wine',
+    description:'距墨尔本市区仅1小时车程的 Yarra Valley 是维多利亚州最负盛名的葡萄酒产区。黑皮诺、霞多丽是这里的明星品种，酒庄直购价格更优。',
+    priceRange:'AUD $20 - $150', image:'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?w=600&h=400&fit=crop',
+    tags:['美酒','产区直购','礼品'],
+    locations:[
+      {name:'Yarra Valley Chocolate Company',address:'1035 Maroondah Hwy, Healesville VIC 3777'},
+      {name:'Domain Chandon',address:'727 Maroondah Hwy, Coldstream VIC 3770'},
+      {name:"Dan Murphy's 市区门店",address:'多处地址, Melbourne CBD'}
+    ]
+  },
+  {
+    id:'melbourne-skyline', name:'墨尔本城市主题纪念品', nameEn:'Melbourne Skyline Souvenirs',
+    description:'以墨尔本天际线、Flinders Station、皇家展览馆等标志性建筑为主题的明信片、冰箱贴、马克杯、帆布包等，是经典的旅行留念方式。',
+    priceRange:'AUD $5 - $50', image:'https://images.unsplash.com/photo-1514395462725-fb4566210144?w=600&h=400&fit=crop',
+    tags:['经典','平价','明信片'],
+    locations:[
+      {name:'Federation Square Gift Shop',address:'Federation Square, Melbourne VIC 3000'},
+      {name:'Queen Victoria Market - 纪念品区',address:'Queen St, Melbourne VIC 3000'},
+      {name:'Flinders Street Station 商店',address:'Flinders St & Swanston St, Melbourne VIC 3000'}
+    ]
+  }
+];
+
+const dailyLife = [
+  {
+    id:'tim-tam', name:'Tim Tam 巧克力饼干', nameEn:'Tim Tam Biscuits',
+    description:'澳洲国民零食，外层巧克力内夹奶油夹心。经典口味包括 Original、Double Coat、Chewy Caramel。"Tim Tam Slam"（咬掉两端当吸管喝热饮）是澳洲经典吃法。',
+    priceRange:'AUD $3 - $8', image:'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=600&h=400&fit=crop',
+    tags:['零食','超平价','伴手礼'],
+    tip:'超市自有品牌版本更便宜，Coles/Woolworths 经常有半价活动',
+    locations:[
+      {name:'Coles / Woolworths 各大超市',address:'遍布墨尔本各区'},
+      {name:'Queen Victoria Market - 零食摊位',address:'Queen St, Melbourne VIC 3000'},
+      {name:'Melbourne Central - Coles Express',address:'211 La Trobe St, Melbourne VIC 3000'}
+    ]
+  },
+  {
+    id:'coffee', name:'精品咖啡 & 挂耳包', nameEn:'Specialty Coffee & Drip Bags',
+    description:'墨尔本是公认的"世界咖啡之都"。带一包本地烘焙的精品咖啡豆或挂耳包回家，就能复刻墨尔本街角咖啡馆的味道。挂耳包轻便易携带，是最受欢迎的日常伴手礼。',
+    priceRange:'AUD $8 - $30', image:'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=600&h=400&fit=crop',
+    tags:['饮品','平价','轻便'],
+    tip:'Market Lane Coffee 和 Seven Miles 的挂耳包性价比极高，适合大量购买送人',
+    locations:[
+      {name:'Patricia Coffee Brewers',address:'49 Market St, Melbourne VIC 3000'},
+      {name:'Market Lane Coffee - Queen Victoria Market',address:'Shop 100, Queen Victoria Market'},
+      {name:'Seven Miles Coffee Roasters',address:'346 Brunswick St, Fitzroy VIC 3065'}
+    ]
+  },
+  {
+    id:'natural-skincare', name:'天然护肤品 & 绵羊油', nameEn:'Natural Skincare & Lanolin Cream',
+    description:'澳洲天然护肤品享誉全球。平价线如绵羊油（Lanolin Cream）在药房仅需几澳元，是最佳日用伴手礼。中高端可选 Aesop、Jurlique 等本土品牌。',
+    priceRange:'AUD $5 - $80', image:'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=600&h=400&fit=crop',
+    tags:['护肤','天然','送礼'],
+    tip:'Chemist Warehouse 的绵羊油低至 AUD $3/罐，买十送一很常见',
+    locations:[
+      {name:'Chemist Warehouse - CBD',address:'多处地址, Melbourne CBD'},
+      {name:'Aesop Flagship Store',address:'261 Brunswick St, Fitzroy VIC 3065'},
+      {name:'Priceline Pharmacy',address:'多处地址, Melbourne CBD'}
+    ]
+  },
+  {
+    id:'manuka-honey', name:'麦卢卡蜂蜜 & 本地蜂蜜', nameEn:'Manuka Honey & Local Honey',
+    description:'澳洲是麦卢卡蜂蜜的重要产地，具有独特的抗菌活性。超市和药房均有平价选择，是兼具健康价值与实用性的日常好物。',
+    priceRange:'AUD $10 - $60', image:'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=600&h=400&fit=crop',
+    tags:['健康','食品','平价'],
+    tip:'超市自有品牌麦卢卡蜂蜜性价比最高，认准 MGO 标注的活性等级',
+    locations:[
+      {name:'Coles / Woolworths 各大超市',address:'遍布墨尔本各区'},
+      {name:'Chemist Warehouse',address:'多处地址, Melbourne CBD'},
+      {name:'South Melbourne Market',address:'211 Bank St, South Melbourne VIC 3205'}
+    ]
+  },
+  {
+    id:'merino-essentials', name:'美利奴羊毛日用小物', nameEn:'Merino Wool Everyday Essentials',
+    description:'美利奴羊毛袜、围巾、手套等小物件价格亲民，轻便保暖。是日常使用频率最高、性价比极佳的澳洲特产。',
+    priceRange:'AUD $10 - $50', image:'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=600&h=400&fit=crop',
+    tags:['保暖','日用','轻便'],
+    tip:'Queen Victoria Market 的羊毛袜 3 双仅需 AUD $20，是最划算的选择',
+    locations:[
+      {name:'Queen Victoria Market - 羊毛制品摊位',address:'Queen St, Melbourne VIC 3000'},
+      {name:'South Melbourne Market',address:'211 Bank St, South Melbourne VIC 3205'},
+      {name:'DFO South Wharf - 折扣店',address:'20 Convention Centre Pl, South Wharf VIC 3006'}
+    ]
+  }
+];
+
+const activities = [
+  {
+    id:'coffee-workshop', name:'咖啡烘焙 & 拉花工作坊', nameEn:'Coffee Roasting & Latte Art Workshop',
+    description:'在墨尔本顶级烘焙坊学习从生豆到杯中的全流程。亲手烘焙咖啡豆、练习拉花技巧，带走自己烘焙的半磅咖啡豆。适合咖啡爱好者。',
+    priceRange:'AUD $80 - $150', duration:'2-3 小时', image:'https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=600&h=400&fit=crop',
+    tags:['手作','咖啡','体验'],
+    highlights:['亲手烘焙咖啡豆','拉花技巧教学','带走自烘咖啡豆','品鉴 5 种单品咖啡'],
+    locations:[
+      {name:'Dukes Coffee Roastery Workshop',address:'2 Dukes St, Melbourne VIC 3000'},
+      {name:'Market Lane Coffee Experience',address:'130 Greville St, Prahran VIC 3181'}
+    ]
+  },
+  {
+    id:'indigenous-art-class', name:'原住民点画工作坊', nameEn:'Indigenous Dot Painting Workshop',
+    description:'由原住民艺术家指导，学习传统点画技法和"梦幻时代"图腾的含义。完成一幅属于自己的原住民风格画作，是最有文化深度的旅行体验。',
+    priceRange:'AUD $60 - $120', duration:'2-3 小时', image:'https://images.unsplash.com/photo-1602564776078-69e86adae468?w=600&h=400&fit=crop',
+    tags:['文化','手作','艺术'],
+    highlights:['原住民艺术家亲授','了解梦幻时代故事','完成一幅点画作品','作品可带走留念'],
+    locations:[
+      {name:'Melbourne Museum - Bunjilaka',address:'Melbourne Museum, Carlton VIC 3053'},
+      {name:'Wominjeka Arts',address:'Federation Square, Melbourne VIC 3000'}
+    ]
+  },
+  {
+    id:'laneway-street-art', name:'涂鸦巷街头艺术之旅', nameEn:'Laneway Street Art Tour',
+    description:'由本地艺术家带领，深入 Hosier Lane、AC/DC Lane 等传奇涂鸦巷，了解街头艺术文化和创作技法。部分行程包含喷雾涂鸦体验环节。',
+    priceRange:'AUD $35 - $80', duration:'1.5-2 小时', image:'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&h=400&fit=crop',
+    tags:['街头文化','体验','摄影'],
+    highlights:['探索隐藏涂鸦巷','了解艺术家背景故事','可选喷雾涂鸦体验','最佳拍照点推荐'],
+    locations:[
+      {name:'Melbourne Street Art Tours',address:'集合点: Federation Square, Melbourne VIC 3000'},
+      {name:'Hosier Lane 自助探索',address:'Hosier Ln, Melbourne VIC 3000'}
+    ]
+  },
+  {
+    id:'pottery-class', name:'陶艺手作工坊', nameEn:'Pottery & Ceramics Workshop',
+    description:'在墨尔本充满艺术气息的工坊中学习拉坯、手捏陶艺。从揉泥到成型，体验慢节奏的手作乐趣。作品烧制后可邮寄到家。',
+    priceRange:'AUD $50 - $100', duration:'2-4 小时', image:'https://images.unsplash.com/photo-1565193566173-7a0ee3dbe263?w=600&h=400&fit=crop',
+    tags:['手作','陶艺','放松'],
+    highlights:['拉坯 / 手捏二选一','专业陶艺师指导','作品烧制后可邮寄','提供茶点'],
+    locations:[
+      {name:'Merrifield Pottery',address:'84 Rayment St, Fitzroy North VIC 3068'},
+      {name:'Bendigo Pottery (Day Trip)',address:'101-117 High St, Golden Square VIC 3555'}
+    ]
+  },
+  {
+    id:'wine-blending', name:'Yarra Valley 混酿体验', nameEn:'Yarra Valley Wine Blending Experience',
+    description:'在 Yarra Valley 酒庄学习葡萄酒品鉴与混酿技巧。用不同品种的基酒调配出属于自己的独特风味，装瓶贴标带走一瓶专属佳酿。',
+    priceRange:'AUD $70 - $130', duration:'2-3 小时', image:'https://images.unsplash.com/photo-1474722883778-792e7990302f?w=600&h=400&fit=crop',
+    tags:['美酒','体验','产区'],
+    highlights:['品鉴 6 款以上葡萄酒','学习混酿技巧','调配专属葡萄酒','装瓶贴标带走'],
+    locations:[
+      {name:'Yering Station',address:'38 Melba Hwy, Yarra Glen VIC 3775'},
+      {name:'Innocent Bystander',address:'580-582 Maroondah Hwy, Healesville VIC 3777'}
+    ]
+  },
+  {
+    id:'chocolate-making', name:'手工巧克力制作课程', nameEn:'Chocolate Making Class',
+    description:'在墨尔本精品巧克力工坊学习从调温到成型的手工巧克力制作全过程。品尝多种风味巧克力，制作属于自己的巧克力礼盒。',
+    priceRange:'AUD $60 - $110', duration:'1.5-2 小时', image:'https://images.unsplash.com/photo-1606312619070-d48b4c652a52?w=600&h=400&fit=crop',
+    tags:['手作','美食','体验'],
+    highlights:['学习巧克力调温技巧','制作 12 颗手工巧克力','巧克力礼盒包装带走','品鉴多种风味'],
+    locations:[
+      {name:'Yarra Valley Chocolate Company',address:'1035 Maroondah Hwy, Healesville VIC 3777'},
+      {name:'Koko Black - South Yarra',address:'155 Toorak Rd, South Yarra VIC 3141'}
+    ]
+  }
+];
+
+// ============ Render ============
+function renderTraveler() {
+  const grid = document.getElementById('traveler-grid');
+  grid.innerHTML = travelerPicks.map(item => `
+    <div class="card" onclick="scrollToSection('traveler')">
+      <div class="card-img">
+        <img src="${item.image}" alt="${item.name}" loading="lazy">
+        <div class="card-tags">${item.tags.slice(0,2).map(t=>`<span class="card-tag-sm">${t}</span>`).join('')}</div>
+      </div>
+      <div class="card-body">
+        <h4>${item.name}</h4>
+        <div class="en">${item.nameEn}</div>
+        <div class="desc">${item.description}</div>
+        <div class="card-footer">
+          <span class="card-price">${item.priceRange}</span>
+          <span class="card-loc-count">${item.locations.length} 个地点</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderDaily() {
+  const grid = document.getElementById('daily-grid');
+  grid.innerHTML = dailyLife.map(item => `
+    <div class="card daily-card">
+      <div class="card-img">
+        <img src="${item.image}" alt="${item.name}" loading="lazy">
+        <div class="daily-price-badge">${item.priceRange}</div>
+      </div>
+      <div class="card-body">
+        <h4>${item.name}</h4>
+        <div class="en">${item.nameEn}</div>
+        <div class="desc">${item.description}</div>
+        ${item.tip ? `<div class="daily-tip">💡 ${item.tip}</div>` : ''}
+        <div style="margin-top:0.75rem;display:flex;flex-wrap:wrap;gap:0.375rem;">${item.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+        <div class="daily-locs">
+          <div class="daily-locs-label">去哪买</div>
+          ${item.locations.map(l=>`<div class="daily-loc"><strong>${l.name}</strong> · ${l.address}</div>`).join('')}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderActivities() {
+  const list = document.getElementById('activities-list');
+  list.innerHTML = activities.map(item => `
+    <div class="card activity-card">
+      <div class="activity-img">
+        <img src="${item.image}" alt="${item.name}" loading="lazy" style="width:100%;height:100%;object-fit:cover;">
+        <div class="activity-duration">${item.duration}</div>
+      </div>
+      <div class="activity-body">
+        <h4>${item.name}</h4>
+        <div class="en">${item.nameEn}</div>
+        <div class="desc">${item.description}</div>
+        ${item.highlights ? `
+          <div class="highlights-label">体验亮点</div>
+          <div class="highlights">${item.highlights.map(h=>`<span class="highlight"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>${h}</span>`).join('')}</div>
+        ` : ''}
+        <div style="margin-top:1rem;display:flex;flex-wrap:wrap;align-items:center;gap:0.75rem;">
+          <div style="display:flex;flex-wrap:wrap;gap:0.375rem;">${item.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+          <span class="tag-accent tag">${item.priceRange}</span>
+        </div>
+        <div class="activity-locs">
+          <div class="daily-locs-label">体验地点</div>
+          ${item.locations.map(l=>`<div class="activity-loc"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-top:0.125rem;flex-shrink:0;color:rgba(192,87,70,0.6)"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><div><strong>${l.name}</strong> · ${l.address}</div></div>`).join('')}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ============ Navigation ============
+function scrollToSection(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+function toggleMobileMenu() {
+  const menu = document.getElementById('mobile-menu');
+  menu.classList.toggle('open');
+}
+
+// ============ GST Calculation ============
+function updateGST() {
+  const amount = parseFloat(document.getElementById('m-amount').value);
+  const hint = document.getElementById('gst-hint');
+  if (amount > 0) {
+    const gst = (Math.round(amount / 11 * 100) / 100).toFixed(2);
+    hint.textContent = `GST amount: AUD $${gst}`;
+    hint.style.display = 'block';
+  } else {
+    hint.style.display = 'none';
+  }
+}
+
+// ============ QR Code Generation ============
+function generateQR() {
+  const storeName = document.getElementById('m-store').value.trim();
+  const abn = document.getElementById('m-abn').value.trim();
+  const amount = document.getElementById('m-amount').value;
+  const items = document.getElementById('m-items').value.trim();
+  const receiptNo = document.getElementById('m-receipt').value.trim();
+  const errorEl = document.getElementById('m-error');
+
+  errorEl.style.display = 'none';
+  if (!storeName) { errorEl.textContent = 'Please enter store name'; errorEl.style.display = 'block'; return; }
+  if (!abn) { errorEl.textContent = 'Please enter ABN (Australian Business Number)'; errorEl.style.display = 'block'; return; }
+  if (!amount || parseFloat(amount) <= 0) { errorEl.textContent = 'Please enter a valid amount'; errorEl.style.display = 'block'; return; }
+  if (!items) { errorEl.textContent = 'Please enter item description'; errorEl.style.display = 'block'; return; }
+
+  const btn = document.getElementById('m-submit');
+  btn.disabled = true;
+  btn.textContent = 'Generating...';
+
+  setTimeout(() => {
+    const amountNum = parseFloat(amount);
+    const gst = Math.round(amountNum / 11 * 100) / 100;
+    const id = Math.random().toString(36).substring(2, 14);
+    const receipt = receiptNo || `RCP-${Date.now().toString(36).toUpperCase()}`;
+    const date = new Date().toISOString();
+
+    const refundData = { id, storeName, abn, amount: amountNum, gst, items, date, receiptNo: receipt };
+    const encoded = btoa(JSON.stringify(refundData));
+    const baseUrl = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '');
+    const qrContent = `${baseUrl}/refund/?data=${encodeURIComponent(encoded)}`;
+
+    // Generate QR
+    const qrContainer = document.getElementById('qrcode');
+    qrContainer.innerHTML = '';
+    new QRCode(qrContainer, {
+      text: qrContent,
+      width: 280,
+      height: 280,
+      colorDark: '#1B3A4B',
+      colorLight: '#FFFFFF',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+
+    // Show info
+    document.getElementById('qr-info').innerHTML = `
+      <div class="qr-info-row"><span class="qr-info-label">Store</span><span class="qr-info-value">${storeName}</span></div>
+      <div class="qr-info-row"><span class="qr-info-label">Amount</span><span class="qr-info-value">AUD $${amountNum.toFixed(2)}</span></div>
+      <div class="qr-info-row"><span class="qr-info-label">GST</span><span class="qr-info-value" style="color:var(--secondary)">AUD $${gst.toFixed(2)}</span></div>
+      <div class="qr-info-row"><span class="qr-info-label">Ref ID</span><span class="qr-info-value" style="font-family:monospace;font-size:0.75rem">${id}</span></div>
+    `;
+
+    document.getElementById('qr-empty').style.display = 'none';
+    document.getElementById('qr-result').style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Generate QR Code';
+  }, 500);
+}
+
+function resetForm() {
+  document.getElementById('m-store').value = '';
+  document.getElementById('m-abn').value = '';
+  document.getElementById('m-amount').value = '';
+  document.getElementById('m-items').value = '';
+  document.getElementById('m-receipt').value = '';
+  document.getElementById('gst-hint').style.display = 'none';
+  document.getElementById('qr-empty').style.display = 'block';
+  document.getElementById('qr-result').style.display = 'none';
+}
+
+// ============ Init ============
+renderTraveler();
+renderDaily();
+renderActivities();
+</script>
+
+</body>
+</html>
