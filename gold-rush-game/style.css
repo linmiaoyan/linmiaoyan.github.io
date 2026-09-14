@@ -1,6 +1,6 @@
 /* -------------------------------------------------------------
-   Gold Rush Pixel Art Theme Stylesheet
-   Color Palette: Earthy Greens, Pixelated Dark Grays, Warm Gold
+   Gold Turmoil (黄金骚动) - Pixel Art Theme Stylesheet
+   Supports 3 Visual Preset Themes: Classic 8-Bit, Warm Cartoon, Dark Dungeon
    ------------------------------------------------------------- */
 
 :root {
@@ -17,6 +17,28 @@
   --pixel-font-title: 'Press Start 2P', monospace;
   --pixel-font-body: 'Silkscreen', monospace;
   --pixel-font-num: 'VT323', monospace;
+}
+
+/* Theme Presets */
+#game-container.theme-classic {
+  --pixel-bg-dark: #1b261c;
+  --pixel-panel: #2e3d2f;
+  --pixel-border-light: #485e49;
+  --pixel-border-dark: #141c15;
+}
+
+#game-container.theme-cartoon {
+  --pixel-bg-dark: #2c1e14;
+  --pixel-panel: #4a3324;
+  --pixel-border-light: #6e4d36;
+  --pixel-border-dark: #190f0a;
+}
+
+#game-container.theme-dungeon {
+  --pixel-bg-dark: #11151c;
+  --pixel-panel: #1d2533;
+  --pixel-border-light: #303d54;
+  --pixel-border-dark: #0a0d12;
 }
 
 * {
@@ -37,6 +59,7 @@ body {
   overflow: hidden;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
+  transition: background-color 0.3s ease;
 }
 
 /* Container Frame */
@@ -49,6 +72,27 @@ body {
   padding: 10px;
   position: relative;
   gap: 10px;
+  transition: background 0.3s ease;
+}
+
+/* Title Header */
+.brand-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.brand-title h1 {
+  font-size: 0.9rem;
+  font-family: var(--pixel-font-title);
+  color: var(--pixel-gold-bright);
+}
+
+.btn-lang {
+  font-size: 0.6rem;
+  padding: 2px 6px;
+  background: var(--pixel-gold);
+  color: #000;
 }
 
 /* 3D Pixelated Box Styling */
@@ -67,6 +111,15 @@ body {
   box-shadow:
     inset 4px 4px 0px 0px rgba(0, 0, 0, 0.6),
     inset -2px -2px 0px 0px var(--pixel-border-light);
+}
+
+.pixel-select {
+  background: #3a4d3c;
+  color: var(--pixel-text);
+  border: 2px solid var(--pixel-border-dark);
+  padding: 4px 8px;
+  font-size: 0.7rem;
+  cursor: pointer;
 }
 
 /* Pixel Buttons */
@@ -182,6 +235,7 @@ body {
 .hud-actions {
   display: flex;
   gap: 6px;
+  align-items: center;
 }
 
 /* Layout Grid */
@@ -316,6 +370,70 @@ input:checked + .toggle-slider::before { transform: translateX(16px); }
   display: block;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
+}
+
+/* Retro Task Widget Overlay */
+.task-box {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  width: 220px;
+  background: rgba(22, 33, 23, 0.92);
+  padding: 8px 10px;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.55rem;
+  font-family: var(--pixel-font-title);
+  color: #aebfae;
+  margin-bottom: 4px;
+}
+
+.task-reward {
+  color: var(--pixel-gold-bright);
+  font-family: var(--pixel-font-num);
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+.task-desc {
+  font-size: 0.68rem;
+  color: #fff;
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.task-progress-bar {
+  height: 14px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.progress-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: linear-gradient(90deg, #f39c12 0%, #2ecc71 100%);
+  transition: width 0.3s ease;
+}
+
+.progress-percent {
+  position: relative;
+  font-family: var(--pixel-font-num);
+  font-size: 0.75rem;
+  color: #fff;
+  z-index: 2;
+  text-shadow: 1px 1px 0 #000;
 }
 
 /* Action Toolbar */

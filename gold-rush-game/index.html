@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>黄金狂查 - Gold Rush Pixel Tycoon</title>
+  <title>黄金骚动 - Gold Turmoil Pixel Tycoon</title>
   <!-- Google Pixel Retro Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,14 +12,20 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="game-container" class="pixel-panel">
+  <div id="game-container" class="pixel-panel theme-classic">
     <!-- Top Retro Pixel HUD Header -->
     <header class="top-bar pixel-box">
+      <!-- Title & Lang Switcher -->
+      <div class="brand-title">
+        <h1 id="txt-app-title"><i class="fa-solid fa-gem icon-gold"></i> 黄金骚动</h1>
+        <button id="btn-lang-toggle" class="pixel-btn-small btn-lang" title="切换语言 / Switch Language">EN / 中文</button>
+      </div>
+
       <!-- Cash Box -->
       <div class="hud-card pixel-button">
         <div class="hud-icon"><i class="fa-solid fa-coins icon-gold"></i></div>
         <div class="hud-details">
-          <span class="hud-label">MONEY</span>
+          <span class="hud-label" id="lbl-money">资金 (MONEY)</span>
           <span class="hud-value" id="cash-display">480 G</span>
         </div>
         <button id="btn-quick-add" class="pixel-btn-small" title="增加资金">+</button>
@@ -29,7 +35,7 @@
       <div class="hud-card pixel-button">
         <div class="hud-icon"><i class="fa-solid fa-boxes-stacked icon-storage"></i></div>
         <div class="hud-details">
-          <span class="hud-label">GOLD STORAGE</span>
+          <span class="hud-label" id="lbl-storage">黄金库存 (STORAGE)</span>
           <span class="hud-value" id="gold-storage-display">0 / 320 oz</span>
         </div>
       </div>
@@ -38,18 +44,24 @@
       <div class="hud-card pixel-button">
         <div class="hud-icon"><i class="fa-solid fa-calendar-week icon-date"></i></div>
         <div class="hud-details">
-          <span class="hud-label">SEASON TIME</span>
+          <span class="hud-label" id="lbl-season">经营期限 (SEASON)</span>
           <span class="hud-value" id="time-display">M1 (28d)</span>
         </div>
       </div>
 
       <!-- Quick Action Utility Buttons -->
       <div class="hud-actions">
+        <!-- Visual Theme Presets Selector -->
+        <select id="select-visual-theme" class="pixel-select" title="视觉画风方案选择 / Visual Style Scheme">
+          <option value="classic">🎨 经典像素 (8-Bit Classic)</option>
+          <option value="cartoon">🎨 暖色卡通 (Warm Cartoon)</option>
+          <option value="dungeon">🎨 暗黑矿洞 (Dark Dungeon)</option>
+        </select>
         <button id="btn-save" class="pixel-btn-icon" title="存档游戏"><i class="fa-solid fa-floppy-disk"></i></button>
         <button id="btn-pause" class="pixel-btn-icon" title="暂停/继续"><i class="fa-solid fa-pause"></i></button>
         <button id="btn-speed" class="pixel-btn-icon" title="倍速">1x</button>
         <button id="btn-sound" class="pixel-btn-icon" title="音效开关"><i class="fa-solid fa-volume-high"></i></button>
-        <button id="btn-workflow" class="pixel-btn-icon btn-accent" title="美术与音乐资产来源指南"><i class="fa-solid fa-palette"></i></button>
+        <button id="btn-workflow" class="pixel-btn-icon btn-accent" title="美术与音乐资产指南"><i class="fa-solid fa-palette"></i></button>
       </div>
     </header>
 
@@ -58,7 +70,7 @@
       <!-- Left Exchange Market (West Market) -->
       <aside class="market-panel pixel-box">
         <div class="market-header">
-          <h3><i class="fa-solid fa-building-columns"></i> 华西交易所</h3>
+          <h3><i class="fa-solid fa-building-columns"></i> <span id="txt-market-west">华西交易所</span></h3>
           <span class="pixel-badge" id="west-trend-badge">STABLE</span>
         </div>
 
@@ -73,11 +85,11 @@
 
         <div class="market-controls">
           <label class="pixel-toggle">
-            <span>开启管道</span>
+            <span id="txt-valve-west">开启输金卡车</span>
             <input type="checkbox" id="west-valve-toggle">
             <span class="toggle-slider"></span>
           </label>
-          <button id="btn-west-boost" class="pixel-btn"><i class="fa-solid fa-bullhorn"></i> 操纵市场 (150G)</button>
+          <button id="btn-west-boost" class="pixel-btn"><i class="fa-solid fa-bullhorn"></i> <span id="txt-boost-west">操纵市场 (150G)</span></button>
         </div>
       </aside>
 
@@ -85,6 +97,20 @@
       <section class="viewport-section">
         <div class="canvas-wrapper pixel-inset">
           <canvas id="game-canvas" width="800" height="480"></canvas>
+
+          <!-- Retro Pixel Task / Quest Box overlay on bottom-right of viewport -->
+          <div id="task-widget" class="task-box pixel-box">
+            <div class="task-header">
+              <span class="task-title" id="txt-task-title">CURRENT TASK</span>
+              <span class="task-reward" id="task-reward-text">+500 G</span>
+            </div>
+            <div class="task-desc" id="task-desc-text">探明 2 个黄金矿脉</div>
+            <div class="task-progress-bar pixel-inset">
+              <div class="progress-fill" id="task-progress-fill" style="width: 0%;"></div>
+              <span class="progress-percent" id="task-progress-text">0%</span>
+            </div>
+          </div>
+
           <div id="toast-message" class="toast pixel-box hidden"></div>
         </div>
 
@@ -92,31 +118,38 @@
         <div class="action-bar pixel-box">
           <!-- Prospecting Tool Group -->
           <div class="tool-group">
-            <span class="group-title">勘探工具</span>
+            <span class="group-title" id="txt-group-prospect">勘探工具</span>
             <button id="tool-prospector" class="pixel-btn tool-btn active" data-tool="prospector">
-              <i class="fa-solid fa-person-digging"></i>
-              <span>探矿员 (100G)</span>
+              <i class="fa-solid fa-user-ninja"></i>
+              <span id="txt-tool-prospector">探矿员 (100G)</span>
             </button>
             <button id="tool-radar" class="pixel-btn tool-btn" data-tool="radar">
               <i class="fa-solid fa-satellite-dish"></i>
-              <span>雷达 (250G)</span>
+              <span id="txt-tool-radar">雷达 (250G)</span>
             </button>
           </div>
 
-          <!-- Mining Tool Group -->
+          <!-- Mining Infrastructure Tool Group (Human Miners & Shafts) -->
           <div class="tool-group">
-            <span class="group-title">开采设施</span>
-            <button id="tool-rig" class="pixel-btn tool-btn" data-tool="rig">
-              <i class="fa-solid fa-truck-monster"></i>
-              <span>钻井 (300G)</span>
+            <span class="group-title" id="txt-group-mining">矿山设施</span>
+            <button id="tool-shaft" class="pixel-btn tool-btn" data-tool="shaft">
+              <i class="fa-solid fa-dungeon"></i>
+              <span id="txt-tool-shaft">建造矿井 (300G)</span>
             </button>
-            <button id="tool-pipe" class="pixel-btn tool-btn" data-tool="pipe">
-              <i class="fa-solid fa-diagram-project"></i>
-              <span>管道 (20G)</span>
+
+            <button id="tool-miner" class="pixel-btn tool-btn" data-tool="miner">
+              <i class="fa-solid fa-person-digging"></i>
+              <span id="txt-tool-miner">雇佣矿工 (150G)</span>
             </button>
+
+            <button id="tool-tunnel" class="pixel-btn tool-btn" data-tool="tunnel">
+              <i class="fa-solid fa-trowel-bricks"></i>
+              <span id="txt-tool-tunnel">挖掘坑道 (20G)</span>
+            </button>
+
             <button id="tool-tank" class="pixel-btn tool-btn" data-tool="tank">
-              <i class="fa-solid fa-box"></i>
-              <span>储金罐 (400G)</span>
+              <i class="fa-solid fa-warehouse"></i>
+              <span id="txt-tool-tank">储金仓库 (400G)</span>
             </button>
           </div>
 
@@ -124,7 +157,7 @@
           <div class="tool-group">
             <button id="btn-open-shop" class="pixel-btn btn-gold">
               <i class="fa-solid fa-screwdriver-wrench"></i>
-              <span>研究中心</span>
+              <span id="txt-btn-shop">科技研究室</span>
             </button>
           </div>
         </div>
@@ -133,7 +166,7 @@
       <!-- Right Exchange Market (East Market) -->
       <aside class="market-panel pixel-box">
         <div class="market-header">
-          <h3><i class="fa-solid fa-landmark"></i> 华东交易所</h3>
+          <h3><i class="fa-solid fa-landmark"></i> <span id="txt-market-east">华东交易所</span></h3>
           <span class="pixel-badge" id="east-trend-badge">STABLE</span>
         </div>
 
@@ -148,11 +181,11 @@
 
         <div class="market-controls">
           <label class="pixel-toggle">
-            <span>开启管道</span>
+            <span id="txt-valve-east">开启输金卡车</span>
             <input type="checkbox" id="east-valve-toggle">
             <span class="toggle-slider"></span>
           </label>
-          <button id="btn-east-boost" class="pixel-btn"><i class="fa-solid fa-bullhorn"></i> 操纵市场 (150G)</button>
+          <button id="btn-east-boost" class="pixel-btn"><i class="fa-solid fa-bullhorn"></i> <span id="txt-boost-east">操纵市场 (150G)</span></button>
         </div>
       </aside>
     </main>
@@ -161,33 +194,33 @@
     <div id="shop-modal" class="modal hidden">
       <div class="modal-content pixel-box">
         <div class="modal-header">
-          <h2><i class="fa-solid fa-microchip"></i> 像素科技研究所</h2>
+          <h2><i class="fa-solid fa-microchip"></i> <span id="txt-modal-shop-title">淘金科技研究所</span></h2>
           <button id="btn-close-shop" class="pixel-btn-close">&times;</button>
         </div>
         <div class="modal-body shop-items">
           <div class="shop-item pixel-inset">
-            <i class="fa-solid fa-gauge-high item-icon"></i>
+            <i class="fa-solid fa-person-running item-icon"></i>
             <div class="item-info">
-              <h4>钻探加速引擎</h4>
-              <p>抽取与打钻速度提升 60%</p>
+              <h4 id="shop-title-pickaxe">矿工挖矿与运金加速</h4>
+              <p id="shop-desc-pickaxe">矿工挥镐速度与矿车推行速度提升 60%</p>
             </div>
-            <button class="pixel-btn btn-buy" data-upgrade="drillSpeed" data-cost="500">500G 研发</button>
+            <button class="pixel-btn btn-buy" data-upgrade="minerSpeed" data-cost="500">500G 研发</button>
           </div>
 
           <div class="shop-item pixel-inset">
-            <i class="fa-solid fa-wave-square item-icon"></i>
+            <i class="fa-solid fa-cart-flatbed-suitcases item-icon"></i>
             <div class="item-info">
-              <h4>超声波声呐</h4>
-              <p>探矿员与雷达侦测半径提升 50%</p>
+              <h4 id="shop-title-cart">矿车载重扩容</h4>
+              <p id="shop-desc-cart">矿工单次拉运黄金容量提升 100%</p>
             </div>
-            <button class="pixel-btn btn-buy" data-upgrade="scannerRange" data-cost="400">400G 研发</button>
+            <button class="pixel-btn btn-buy" data-upgrade="cartCapacity" data-cost="400">400G 研发</button>
           </div>
 
           <div class="shop-item pixel-inset">
             <i class="fa-solid fa-warehouse item-icon"></i>
             <div class="item-info">
-              <h4>储金罐像素压制</h4>
-              <p>储金上限提升 100%</p>
+              <h4 id="shop-title-warehouse">储金仓库像素压制</h4>
+              <p id="shop-desc-warehouse">储金上限提升 100%</p>
             </div>
             <button class="pixel-btn btn-buy" data-upgrade="tankExpand" data-cost="600">600G 研发</button>
           </div>
@@ -203,45 +236,31 @@
           <button id="btn-close-workflow" class="pixel-btn-close">&times;</button>
         </div>
         <div class="modal-body workflow-text">
-          <h3>🎨 像素美术 (Pixel Art) 资源与工作流</h3>
+          <h3>🎨 像素美术 (Pixel Art) 方案与工作流</h3>
           <ul>
+            <li><strong>方案一: 经典 8-Bit 像素 (Classic Pixel)</strong> (基于经典 FC / GameBoy 色彩与块状 Grid 渲染)</li>
+            <li><strong>方案二: 暖色卡通 (Warm Cartoon)</strong> (采用高饱和暖色调、平滑草地与大金块)</li>
+            <li><strong>方案三: 暗黑矿洞 (Dark Dungeon)</strong> (采用冷色暗黑地牢风格、地底荧光金矿)</li>
             <li><strong>免费/开源像素素材网站:</strong>
               <ul>
                 <li><a href="https://kenney.nl/assets/category:2D" target="_blank">Kenney.nl</a> (免费CC0公有领域 2D/像素精灵图包)</li>
                 <li><a href="https://opengameart.org/" target="_blank">OpenGameArt.org</a> (开源游戏美术和 Tilemaps)</li>
-                <li><a href="https://itch.io/game-assets/free/tag-pixel-art" target="_blank">Itch.io Pixel Art</a> (大量独立开发者分享的免费像素素材)</li>
-              </ul>
-            </li>
-            <li><strong>推荐像素绘画/编辑工具:</strong>
-              <ul>
-                <li><strong>Aseprite</strong> (专业像素动画与Tilemap制作神器的首选)</li>
-                <li><strong>Piskel</strong> (免费开源的网页端像素画绘制工具)</li>
               </ul>
             </li>
           </ul>
 
           <hr>
 
-          <h3>🎵 8-Bit 复音音乐与音效 (SFX) 资源与工作流</h3>
+          <h3>🎵 8-Bit 复音音乐与音效 (SFX) 资源</h3>
           <ul>
-            <li><strong>复古音效生成器:</strong>
-              <ul>
-                <li><a href="https://www.bfxr.net/" target="_blank">BFXR / JSFXR</a> (可直接在浏览器在线合成 8-bit 金币/挖掘/爆炸/升阶音效，一键导出 WAV/WebAudio 代码)</li>
-                <li><a href="https://freesound.org/" target="_blank">Freesound.org</a> (海量 CC 授权复古游戏音效)</li>
-              </ul>
-            </li>
-            <li><strong>芯片音乐 (Chiptune) 制作与网页端音乐工作流:</strong>
-              <ul>
-                <li><a href="https://www.beepbox.co/" target="_blank">BeepBox.co</a> (非常易用的网页 8-bit 音乐作曲软件)</li>
-                <li><strong>Web Audio API</strong> (纯代码直接由声卡合成无损音效，无需加载外部 mp3 文件，零延时且极其轻量)</li>
-              </ul>
-            </li>
+            <li><a href="https://www.bfxr.net/" target="_blank">BFXR / JSFXR</a> (在线合成 8-bit 音效)</li>
+            <li><a href="https://www.beepbox.co/" target="_blank">BeepBox.co</a> (8-bit 网页作曲器)</li>
           </ul>
         </div>
       </div>
     </div>
 
-    <!-- Clipboard Invoice Settlement Modal (Matching User Retro Invoice Reference) -->
+    <!-- Clipboard Invoice Settlement Modal -->
     <div id="settlement-modal" class="modal hidden">
       <div class="clipboard-invoice pixel-box">
         <div class="clipboard-clip"></div>
