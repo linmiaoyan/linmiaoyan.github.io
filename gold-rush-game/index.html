@@ -85,6 +85,20 @@
       <section class="viewport-section">
         <div class="canvas-wrapper pixel-inset">
           <canvas id="game-canvas" width="800" height="480"></canvas>
+
+          <!-- Retro Pixel Task / Quest Box overlay on bottom-right of viewport -->
+          <div id="task-widget" class="task-box pixel-box">
+            <div class="task-header">
+              <span class="task-title">CURRENT TASK</span>
+              <span class="task-reward" id="task-reward-text">+500 G</span>
+            </div>
+            <div class="task-desc" id="task-desc-text">探明 2 个黄金矿脉</div>
+            <div class="task-progress-bar pixel-inset">
+              <div class="progress-fill" id="task-progress-fill" style="width: 0%;"></div>
+              <span class="progress-percent" id="task-progress-text">0%</span>
+            </div>
+          </div>
+
           <div id="toast-message" class="toast pixel-box hidden"></div>
         </div>
 
@@ -241,7 +255,7 @@
       </div>
     </div>
 
-    <!-- Clipboard Invoice Settlement Modal (Matching User Retro Invoice Reference) -->
+    <!-- Clipboard Invoice Settlement Modal -->
     <div id="settlement-modal" class="modal hidden">
       <div class="clipboard-invoice pixel-box">
         <div class="clipboard-clip"></div>

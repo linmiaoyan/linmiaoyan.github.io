@@ -318,6 +318,70 @@ input:checked + .toggle-slider::before { transform: translateX(16px); }
   image-rendering: crisp-edges;
 }
 
+/* Retro Task Widget Overlay */
+.task-box {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  width: 220px;
+  background: rgba(22, 33, 23, 0.92);
+  padding: 8px 10px;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.55rem;
+  font-family: var(--pixel-font-title);
+  color: #aebfae;
+  margin-bottom: 4px;
+}
+
+.task-reward {
+  color: var(--pixel-gold-bright);
+  font-family: var(--pixel-font-num);
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+.task-desc {
+  font-size: 0.68rem;
+  color: #fff;
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.task-progress-bar {
+  height: 14px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.progress-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: linear-gradient(90deg, #f39c12 0%, #2ecc71 100%);
+  transition: width 0.3s ease;
+}
+
+.progress-percent {
+  position: relative;
+  font-family: var(--pixel-font-num);
+  font-size: 0.75rem;
+  color: #fff;
+  z-index: 2;
+  text-shadow: 1px 1px 0 #000;
+}
+
 /* Action Toolbar */
 .action-bar {
   padding: 6px 10px;

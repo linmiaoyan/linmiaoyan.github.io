@@ -1,7 +1,7 @@
 /**
  * 黄金狂查 (Gold Rush Pixel Tycoon) - Pure JavaScript Engine
- * Includes pixel-art sprite rendering, Web Audio Chiptune SFX,
- * LocalStorage Save/Load, and Real-Time Market Exchange Mechanics.
+ * Enhanced with Rich Metallic Gold Texture Rendering, Dynamic Quest System,
+ * Animated Pipe Flowing Liquids, and Soil Layer Shading.
  */
 
 (function () {
@@ -16,7 +16,7 @@
     INITIAL_STORAGE_LIMIT: 320,
     MONTH_SECONDS: 15,
     TOTAL_MONTHS: 12,
-    SAVE_KEY: 'GOLD_RUSH_PIXEL_SAVE_V1'
+    SAVE_KEY: 'GOLD_RUSH_PIXEL_SAVE_V2'
   };
 
   // Web Audio Chiptune Synthesizer
@@ -39,8 +39,8 @@
       const osc = this.ctx.createOscillator();
       const gain = this.ctx.createGain();
       osc.type = 'square';
-      osc.frequency.setValueAtTime(987.77, now); // B5
-      osc.frequency.setValueAtTime(1318.51, now + 0.08); // E6
+      osc.frequency.setValueAtTime(987.77, now);
+      osc.frequency.setValueAtTime(1318.51, now + 0.08);
       gain.gain.setValueAtTime(0.12, now);
       gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
       osc.connect(gain);
@@ -97,14 +97,41 @@
       osc.start(now);
       osc.stop(now + 0.3);
     }
+
+    playQuestComplete() {
+      if (!this.enabled || !this.ctx) return;
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(523.25, now); // C5
+      osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+      osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+      osc.frequency.setValueAtTime(1046.50, now + 0.3); // C6
+      gain.gain.setValueAtTime(0.15, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.5);
+    }
   }
+
+  // Tasks/Quests Pool
+  const QUEST_POOL = [
+    { id: 'discover_gold', desc: '探明 2 个黄金矿脉', target: 2, reward: 350, type: 'discovered_count' },
+    { id: 'build_pipes', desc: '建造 3 段采矿管道', target: 3, reward: 250, type: 'pipe_count' },
+    { id: 'mine_gold_500', desc: '累计采出 400 oz 黄金', target: 400, reward: 500, type: 'mined_gold' },
+    { id: 'sell_gold_revenue', desc: '黄金销售总额达到 1200 G', target: 1200, reward: 600, type: 'revenue' },
+    { id: 'build_tanks', desc: '建造 2 个储金罐', target: 2, reward: 400, type: 'tank_count' }
+  ];
 
   // Pixel Game Engine Class
   class PixelGoldGame {
     constructor() {
       this.canvas = document.getElementById('game-canvas');
       this.ctx = this.canvas.getContext('2d');
-      this.ctx.imageSmoothingEnabled = false; // Enable sharp pixel graphics
+      this.ctx.imageSmoothingEnabled = false; // Crisp pixel art
 
       this.audio = new ChiptuneAudio();
 
@@ -137,7 +164,11 @@
       this.tanks = [];
       this.pipes = [];
       this.sonarRings = [];
-      this.floatingTexts = []; // Floating profit text
+      this.sparkleParticles = [];
+
+      // Quests State
+      this.currentQuestIndex = 0;
+      this.questProgress = 0;
 
       // Side Markets
       this.markets = {
@@ -170,8 +201,11 @@
       this.tanks = [];
       this.pipes = [];
       this.sonarRings = [];
-      this.floatingTexts = [];
+      this.sparkleParticles = [];
       this.activePipeOrigin = null;
+
+      this.currentQuestIndex = 0;
+      this.questProgress = 0;
 
       this.markets.west = { name: '华西', price: 45.0, change: 0, history: [45.0], valveOpen: false, trend: 'STABLE' };
       this.markets.east = { name: '华东', price: 42.0, change: 0, history: [42.0], valveOpen: false, trend: 'STABLE' };
@@ -182,12 +216,12 @@
 
     generateGoldDeposits() {
       this.goldDeposits = [];
-      const count = 14 + Math.floor(Math.random() * 5);
+      const count = 15 + Math.floor(Math.random() * 5);
       for (let i = 0; i < count; i++) {
         const x = 60 + Math.random() * (CONFIG.CANVAS_WIDTH - 120);
         const y = CONFIG.GROUND_Y + 40 + Math.random() * (CONFIG.CANVAS_HEIGHT - CONFIG.GROUND_Y - 80);
-        const radius = 12 + Math.random() * 18;
-        const amount = Math.floor(radius * 25 + Math.random() * 180);
+        const radius = 14 + Math.random() * 18;
+        const amount = Math.floor(radius * 28 + Math.random() * 200);
 
         this.goldDeposits.push({
           x: Math.floor(x),
@@ -195,13 +229,13 @@
           radius: Math.floor(radius),
           initialAmount: amount,
           amount,
-          discovered: false
+          discovered: false,
+          sparkleTimer: Math.random() * 2
         });
       }
     }
 
     initUI() {
-      // Tool Select Buttons
       document.querySelectorAll('.tool-btn[data-tool]').forEach((btn) => {
         btn.addEventListener('click', () => {
           document.querySelectorAll('.tool-btn[data-tool]').forEach((b) => b.classList.remove('active'));
@@ -212,14 +246,12 @@
         });
       });
 
-      // Quick Add Money Button
       document.getElementById('btn-quick-add').addEventListener('click', () => {
         this.cash += 100;
         this.showToast('+100 G Funds Added');
         this.updateUI();
       });
 
-      // Canvas Interaction
       this.canvas.addEventListener('click', (e) => {
         const rect = this.canvas.getBoundingClientRect();
         const scaleX = CONFIG.CANVAS_WIDTH / rect.width;
@@ -229,7 +261,6 @@
         this.handleCanvasClick(x, y);
       });
 
-      // Top Action Buttons
       document.getElementById('btn-save').addEventListener('click', () => this.saveGame());
 
       document.getElementById('btn-pause').addEventListener('click', () => {
@@ -253,17 +284,14 @@
           : '<i class="fa-solid fa-volume-xmark"></i>';
       });
 
-      // Workflow Modal Toggle
       const workflowModal = document.getElementById('workflow-modal');
       document.getElementById('btn-workflow').addEventListener('click', () => workflowModal.classList.remove('hidden'));
       document.getElementById('btn-close-workflow').addEventListener('click', () => workflowModal.classList.add('hidden'));
 
-      // Shop Modal Toggle
       const shopModal = document.getElementById('shop-modal');
       document.getElementById('btn-open-shop').addEventListener('click', () => shopModal.classList.remove('hidden'));
       document.getElementById('btn-close-shop').addEventListener('click', () => shopModal.classList.add('hidden'));
 
-      // Valve Toggles
       document.getElementById('west-valve-toggle').addEventListener('change', (e) => {
         this.markets.west.valveOpen = e.target.checked;
       });
@@ -271,11 +299,9 @@
         this.markets.east.valveOpen = e.target.checked;
       });
 
-      // Boost Buttons
       document.getElementById('btn-west-boost').addEventListener('click', () => this.boostMarket('west'));
       document.getElementById('btn-east-boost').addEventListener('click', () => this.boostMarket('east'));
 
-      // Upgrades Buying
       document.querySelectorAll('.btn-buy').forEach((btn) => {
         btn.addEventListener('click', () => {
           const key = btn.getAttribute('data-upgrade');
@@ -284,7 +310,6 @@
         });
       });
 
-      // Settlement Restart
       document.getElementById('btn-restart').addEventListener('click', () => {
         document.getElementById('settlement-modal').classList.add('hidden');
         this.resetGame();
@@ -380,7 +405,7 @@
         this.cash -= 300;
         this.totalExpenses += 300;
         this.audio.playDig();
-        this.rigs.push({ x, y: CONFIG.GROUND_Y });
+        this.rigs.push({ x, y: CONFIG.GROUND_Y, gearAngle: 0 });
         this.showToast('Drill Rig Built! Now connect pipes underground!');
       } else if (this.selectedTool === 'pipe') {
         if (!this.activePipeOrigin) {
@@ -427,7 +452,8 @@
             y1: this.activePipeOrigin.y,
             x2: x,
             y2: y,
-            connectedIndex: hitIndex
+            connectedIndex: hitIndex,
+            flowOffset: 0
           });
 
           if (hitIndex !== -1) {
@@ -455,6 +481,7 @@
         this.showToast('Storage Tank Built!');
       }
 
+      this.checkQuestProgress();
       this.updateUI();
     }
 
@@ -504,7 +531,7 @@
         }
       });
 
-      // Prospector movement
+      // Prospector movement & scanning
       this.prospectors.forEach((p) => {
         p.x += p.dir * 20 * dt;
         if (p.x < 30 || p.x > CONFIG.CANVAS_WIDTH - 30) p.dir *= -1;
@@ -517,11 +544,12 @@
             dep.discovered = true;
             this.audio.playSonar();
             this.showToast('Prospector found underground Gold!');
+            this.checkQuestProgress();
           }
         });
       });
 
-      // Sonar rings animation
+      // Sonar rings
       for (let i = this.sonarRings.length - 1; i >= 0; i--) {
         const ring = this.sonarRings[i];
         ring.r += 90 * dt;
@@ -529,7 +557,29 @@
         if (ring.alpha <= 0) this.sonarRings.splice(i, 1);
       }
 
-      // Gold Mining via Pipes
+      // Sparkles animation
+      this.goldDeposits.forEach((dep) => {
+        if (dep.discovered && dep.amount > 0) {
+          dep.sparkleTimer -= dt;
+          if (dep.sparkleTimer <= 0) {
+            dep.sparkleTimer = 1.5 + Math.random() * 2;
+            this.sparkleParticles.push({
+              x: dep.x + (Math.random() - 0.5) * dep.radius,
+              y: dep.y + (Math.random() - 0.5) * dep.radius,
+              size: 2 + Math.random() * 3,
+              alpha: 1.0
+            });
+          }
+        }
+      });
+
+      for (let i = this.sparkleParticles.length - 1; i >= 0; i--) {
+        const sp = this.sparkleParticles[i];
+        sp.alpha -= 1.2 * dt;
+        if (sp.alpha <= 0) this.sparkleParticles.splice(i, 1);
+      }
+
+      // Mining via Pipes
       this.pipes.forEach((pipe) => {
         if (pipe.connectedIndex !== -1) {
           const dep = this.goldDeposits[pipe.connectedIndex];
@@ -541,9 +591,15 @@
               dep.amount -= actual;
               this.storedGold += actual;
               this.totalMined += actual;
+              pipe.flowOffset = (pipe.flowOffset + 15 * dt) % 10;
             }
           }
         }
+      });
+
+      // Rotate Rigs
+      this.rigs.forEach((r) => {
+        r.gearAngle = (r.gearAngle + 3 * dt) % (Math.PI * 2);
       });
 
       // Selling Gold via Valves
@@ -570,59 +626,108 @@
         this.audio.playCoin();
       }
 
-      // Update Floating Texts
-      for (let i = this.floatingTexts.length - 1; i >= 0; i--) {
-        const ft = this.floatingTexts[i];
-        ft.y -= 20 * dt;
-        ft.alpha -= 0.8 * dt;
-        if (ft.alpha <= 0) this.floatingTexts.splice(i, 1);
+      this.checkQuestProgress();
+      this.updateUI();
+    }
+
+    checkQuestProgress() {
+      if (this.currentQuestIndex >= QUEST_POOL.length) return;
+
+      const q = QUEST_POOL[this.currentQuestIndex];
+      let val = 0;
+
+      if (q.type === 'discovered_count') {
+        val = this.goldDeposits.filter((d) => d.discovered).length;
+      } else if (q.type === 'pipe_count') {
+        val = this.pipes.length;
+      } else if (q.type === 'mined_gold') {
+        val = Math.floor(this.totalMined);
+      } else if (q.type === 'revenue') {
+        val = Math.floor(this.totalRevenue);
+      } else if (q.type === 'tank_count') {
+        val = this.tanks.length;
       }
 
-      this.updateUI();
+      this.questProgress = Math.min(val, q.target);
+
+      if (val >= q.target) {
+        this.audio.playQuestComplete();
+        this.cash += q.reward;
+        this.showToast(`TASK COMPLETED! +${q.reward}G Reward Claimed!`);
+        this.currentQuestIndex++;
+        this.questProgress = 0;
+      }
     }
 
     render() {
       const ctx = this.ctx;
       ctx.clearRect(0, 0, CONFIG.CANVAS_WIDTH, CONFIG.CANVAS_HEIGHT);
 
-      // Pixel Sky
-      ctx.fillStyle = '#68a0a8';
+      // Pixel Sky & Sun Gradient
+      ctx.fillStyle = '#5c949d';
       ctx.fillRect(0, 0, CONFIG.CANVAS_WIDTH, CONFIG.GROUND_Y);
 
-      // Pixel Surface Grass & Trees
-      ctx.fillStyle = '#3a663b';
-      ctx.fillRect(0, CONFIG.GROUND_Y - 8, CONFIG.CANVAS_WIDTH, 12);
-      ctx.fillStyle = '#4f8050';
-      ctx.fillRect(0, CONFIG.GROUND_Y - 8, CONFIG.CANVAS_WIDTH, 4);
+      // Pixel Surface Grass & Layered Shading
+      ctx.fillStyle = '#2d572e';
+      ctx.fillRect(0, CONFIG.GROUND_Y - 10, CONFIG.CANVAS_WIDTH, 14);
+      ctx.fillStyle = '#417343';
+      ctx.fillRect(0, CONFIG.GROUND_Y - 10, CONFIG.CANVAS_WIDTH, 5);
 
-      // Decorative Pixel Trees & Rocks
       this.renderPixelDecorations(ctx);
 
-      // Underground Dirt
-      ctx.fillStyle = '#4a3321';
-      ctx.fillRect(0, CONFIG.GROUND_Y + 4, CONFIG.CANVAS_WIDTH, CONFIG.CANVAS_HEIGHT - CONFIG.GROUND_Y);
-      ctx.fillStyle = '#332216';
-      ctx.fillRect(0, CONFIG.GROUND_Y + 120, CONFIG.CANVAS_WIDTH, CONFIG.CANVAS_HEIGHT - CONFIG.GROUND_Y - 120);
+      // Rich Underground Soil Strata
+      const soilLayer1 = CONFIG.GROUND_Y + 4;
+      const soilLayer2 = CONFIG.GROUND_Y + 130;
+      const soilLayer3 = CONFIG.GROUND_Y + 260;
 
-      // Discovered Gold Deposits
+      // Top Soil
+      ctx.fillStyle = '#4a3321';
+      ctx.fillRect(0, soilLayer1, CONFIG.CANVAS_WIDTH, soilLayer2 - soilLayer1);
+
+      // Mid Strata
+      ctx.fillStyle = '#382516';
+      ctx.fillRect(0, soilLayer2, CONFIG.CANVAS_WIDTH, soilLayer3 - soilLayer2);
+
+      // Deep Rock Strata
+      ctx.fillStyle = '#26180e';
+      ctx.fillRect(0, soilLayer3, CONFIG.CANVAS_WIDTH, CONFIG.CANVAS_HEIGHT - soilLayer3);
+
+      // Draw Pixel Fossils / Rock Bits Underground
+      this.renderUndergroundRocks(ctx);
+
+      // Discovered Metallic Gold Nuggets with Facets & Glow
       this.goldDeposits.forEach((dep) => {
         if (dep.discovered) {
           const ratio = dep.amount / dep.initialAmount;
           if (dep.amount > 0) {
-            ctx.fillStyle = '#f1c40f';
+            const r = Math.max(5, dep.radius * ratio);
+
+            // Outer Golden Glow Ring
+            ctx.fillStyle = 'rgba(241, 196, 15, 0.25)';
             ctx.beginPath();
-            ctx.arc(dep.x, dep.y, Math.max(3, dep.radius * ratio), 0, Math.PI * 2);
+            ctx.arc(dep.x, dep.y, r + 5, 0, Math.PI * 2);
             ctx.fill();
 
-            ctx.fillStyle = '#f39c12';
-            ctx.fillRect(dep.x - 2, dep.y - 2, 4, 4);
+            // Main Metallic Gold Ore Nugget Base
+            ctx.fillStyle = '#d4ac0d';
+            ctx.beginPath();
+            ctx.arc(dep.x, dep.y, r, 0, Math.PI * 2);
+            ctx.fill();
 
+            // Gold Facet Highlights
+            ctx.fillStyle = '#f1c40f';
+            ctx.fillRect(dep.x - r * 0.4, dep.y - r * 0.4, r * 0.8, r * 0.8);
+            ctx.fillStyle = '#fef9e7';
+            ctx.fillRect(dep.x - r * 0.2, dep.y - r * 0.2, r * 0.4, r * 0.4);
+
+            // Quantity Label
             ctx.fillStyle = '#ffffff';
-            ctx.font = '10px "VT323", monospace';
+            ctx.font = '11px "VT323", monospace';
             ctx.textAlign = 'center';
-            ctx.fillText(`${Math.floor(dep.amount)}oz`, dep.x, dep.y + dep.radius + 10);
+            ctx.fillText(`${Math.floor(dep.amount)}oz`, dep.x, dep.y + r + 12);
           } else {
-            ctx.fillStyle = '#7f8c8d';
+            // Depleted Rock Node
+            ctx.fillStyle = '#566573';
             ctx.beginPath();
             ctx.arc(dep.x, dep.y, 4, 0, Math.PI * 2);
             ctx.fill();
@@ -630,14 +735,33 @@
         }
       });
 
-      // Pipes
-      ctx.lineWidth = 4;
+      // Draw Sparkle Particles
+      this.sparkleParticles.forEach((sp) => {
+        ctx.fillStyle = `rgba(255, 255, 255, ${sp.alpha})`;
+        ctx.fillRect(sp.x, sp.y, sp.size, sp.size);
+      });
+
+      // Pipes with Flowing Liquid Effect
       this.pipes.forEach((p) => {
-        ctx.strokeStyle = p.connectedIndex !== -1 ? '#f1c40f' : '#2c3e50';
+        ctx.lineWidth = 5;
+        ctx.strokeStyle = p.connectedIndex !== -1 ? '#f39c12' : '#2c3e50';
         ctx.beginPath();
         ctx.moveTo(p.x1, p.y1);
         ctx.lineTo(p.x2, p.y2);
         ctx.stroke();
+
+        if (p.connectedIndex !== -1) {
+          // Inner Flowing Gold Core Dash
+          ctx.lineWidth = 2;
+          ctx.strokeStyle = '#fef9e7';
+          ctx.setLineDash([4, 6]);
+          ctx.lineDashOffset = -p.flowOffset;
+          ctx.beginPath();
+          ctx.moveTo(p.x1, p.y1);
+          ctx.lineTo(p.x2, p.y2);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
 
         ctx.fillStyle = '#111';
         ctx.fillRect(p.x2 - 3, p.y2 - 3, 6, 6);
@@ -647,18 +771,29 @@
       if (this.selectedTool === 'pipe' && this.activePipeOrigin) {
         ctx.strokeStyle = '#f39c12';
         ctx.lineWidth = 2;
+        ctx.setLineDash([4, 4]);
         ctx.beginPath();
         ctx.moveTo(this.activePipeOrigin.x, this.activePipeOrigin.y);
         ctx.lineTo(this.activePipeOrigin.x, CONFIG.GROUND_Y + 80);
         ctx.stroke();
+        ctx.setLineDash([]);
       }
 
-      // Rigs
+      // Rigs with Rotating Gear Wheels
       this.rigs.forEach((r) => {
         ctx.fillStyle = '#34495e';
-        ctx.fillRect(r.x - 10, r.y - 20, 20, 20);
+        ctx.fillRect(r.x - 12, r.y - 22, 24, 22);
+
+        // Gear Wheel Animation
+        ctx.save();
+        ctx.translate(r.x, r.y - 12);
+        ctx.rotate(r.gearAngle);
+        ctx.fillStyle = '#f1c40f';
+        ctx.fillRect(-4, -4, 8, 8);
+        ctx.restore();
+
         ctx.fillStyle = '#e74c3c';
-        ctx.fillRect(r.x - 4, r.y - 26, 8, 6);
+        ctx.fillRect(r.x - 4, r.y - 28, 8, 6);
       });
 
       // Tanks
@@ -676,7 +811,6 @@
         ctx.fillStyle = '#f1c40f';
         ctx.fillRect(p.x - 3, p.y - 14, 6, 4);
 
-        // Sonar Arc
         ctx.strokeStyle = 'rgba(241, 196, 15, 0.5)';
         ctx.lineWidth = 2;
         ctx.beginPath();
@@ -693,13 +827,12 @@
         ctx.stroke();
       });
 
-      // Render Charts
+      // Sparklines
       this.renderMarketChart('west-chart', this.markets.west.history);
       this.renderMarketChart('east-chart', this.markets.east.history);
     }
 
     renderPixelDecorations(ctx) {
-      // Static pixel trees & rocks positions
       const staticDecor = [
         { type: 'tree', x: 40 },
         { type: 'tree', x: 120 },
@@ -719,6 +852,23 @@
           ctx.fillStyle = '#7f8c8d';
           ctx.fillRect(item.x - 8, CONFIG.GROUND_Y - 12, 16, 12);
         }
+      });
+    }
+
+    renderUndergroundRocks(ctx) {
+      const rocks = [
+        { x: 90, y: 140, w: 8, h: 6 },
+        { x: 280, y: 190, w: 10, h: 8 },
+        { x: 490, y: 160, w: 6, h: 6 },
+        { x: 670, y: 220, w: 12, h: 8 },
+        { x: 150, y: 310, w: 14, h: 10 },
+        { x: 390, y: 380, w: 8, h: 8 },
+        { x: 590, y: 350, w: 10, h: 6 }
+      ];
+
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+      rocks.forEach((r) => {
+        ctx.fillRect(r.x, r.y, r.w, r.h);
       });
     }
 
@@ -769,6 +919,21 @@
       eChg.innerText = `${this.markets.east.change >= 0 ? '+' : ''}${this.markets.east.change.toFixed(1)}`;
       eChg.className = `price-change ${this.markets.east.change >= 0 ? 'up' : 'down'}`;
       document.getElementById('east-trend-badge').innerText = this.markets.east.trend;
+
+      // Update Task HUD Widget
+      if (this.currentQuestIndex < QUEST_POOL.length) {
+        const q = QUEST_POOL[this.currentQuestIndex];
+        document.getElementById('task-desc-text').innerText = q.desc;
+        document.getElementById('task-reward-text').innerText = `+${q.reward} G`;
+        const pct = Math.floor((this.questProgress / q.target) * 100);
+        document.getElementById('task-progress-fill').style.width = `${pct}%`;
+        document.getElementById('task-progress-text').innerText = `${pct}%`;
+      } else {
+        document.getElementById('task-desc-text').innerText = '所有任务已全部完成！';
+        document.getElementById('task-reward-text').innerText = 'MAX';
+        document.getElementById('task-progress-fill').style.width = '100%';
+        document.getElementById('task-progress-text').innerText = '100%';
+      }
     }
 
     showToast(msg) {
@@ -788,6 +953,7 @@
         totalRevenue: this.totalRevenue,
         totalExpenses: this.totalExpenses,
         currentMonth: this.currentMonth,
+        currentQuestIndex: this.currentQuestIndex,
         upgrades: this.upgrades,
         goldDeposits: this.goldDeposits,
         rigs: this.rigs,
@@ -810,6 +976,7 @@
         this.totalRevenue = state.totalRevenue;
         this.totalExpenses = state.totalExpenses;
         this.currentMonth = state.currentMonth;
+        this.currentQuestIndex = state.currentQuestIndex || 0;
         this.upgrades = state.upgrades || this.upgrades;
         this.goldDeposits = state.goldDeposits || [];
         this.rigs = state.rigs || [];
