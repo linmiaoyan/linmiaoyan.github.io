@@ -1,7 +1,9 @@
 /**
  * 黄金骚动 (Gold Turmoil Pixel Tycoon) - Pure JavaScript Engine
  * Features:
- * - Real Human Underground Miners with Pickaxes & Minecarts (authentic gold mining logic instead of oil pipes)
+ * - High-Quality Pixel Sprites (Miners with hardhats, light beams, denim overalls, pickaxe swing frames, carts with turning wheels & gold nuggets)
+ * - Prospectors with backpack, walking animation, and dowsing rod
+ * - Multi-faceted shimmering gold ore clusters with sparkle particles
  * - 3 Selectable Visual Themes (Classic Pixel 8-Bit, Warm Cartoon, Dark Mining Dungeon)
  * - Full Chinese / English i18n Localization Toggle (Default Chinese)
  * - Web Audio Chiptune SFX, Dynamic Quests, LocalStorage Save/Load
@@ -19,7 +21,7 @@
     INITIAL_STORAGE_LIMIT: 320,
     MONTH_SECONDS: 15,
     TOTAL_MONTHS: 12,
-    SAVE_KEY: 'GOLD_TURMOIL_SAVE_V3'
+    SAVE_KEY: 'GOLD_TURMOIL_SAVE_V4'
   };
 
   // i18n Translation Dictionary
@@ -215,7 +217,9 @@
       goldBase: '#d4ac0d',
       goldFacet: '#f1c40f',
       goldGlow: 'rgba(241, 196, 15, 0.25)',
-      minerCloth: '#e74c3c'
+      minerShirt: '#e74c3c',
+      minerPants: '#2c3e50',
+      hardhat: '#f39c12'
     },
     cartoon: {
       sky: '#70c5ce',
@@ -227,7 +231,9 @@
       goldBase: '#ffc107',
       goldFacet: '#ffe082',
       goldGlow: 'rgba(255, 224, 130, 0.35)',
-      minerCloth: '#ff5722'
+      minerShirt: '#ff5722',
+      minerPants: '#1976d2',
+      hardhat: '#ffeb3b'
     },
     dungeon: {
       sky: '#2c3e50',
@@ -236,10 +242,12 @@
       topSoil: '#2c2520',
       midSoil: '#1c1714',
       deepSoil: '#100d0b',
-      goldBase: '#00e676', // Emerald fluorescent gold in dark dungeon
+      goldBase: '#00e676',
       goldFacet: '#b9f6ca',
       goldGlow: 'rgba(0, 230, 118, 0.3)',
-      minerCloth: '#9c27b0'
+      minerShirt: '#9c27b0',
+      minerPants: '#37474f',
+      hardhat: '#00e676'
     }
   };
 
@@ -252,10 +260,9 @@
 
       this.audio = new ChiptuneAudio();
 
-      this.currentLang = 'zh'; // Default Chinese
-      this.currentTheme = 'classic'; // Default Classic Pixel
+      this.currentLang = 'zh';
+      this.currentTheme = 'classic';
 
-      // Core Economy & Progress
       this.cash = CONFIG.INITIAL_CASH;
       this.storageCapacity = CONFIG.INITIAL_STORAGE_LIMIT;
       this.storedGold = 0;
@@ -277,21 +284,18 @@
         tankExpand: 1.0
       };
 
-      // Entities
       this.goldDeposits = [];
       this.prospectors = [];
-      this.shafts = []; // Vertical entrances
-      this.tunnels = []; // Underground pathways connecting shafts to gold
-      this.miners = []; // Human underground miners
+      this.shafts = [];
+      this.tunnels = [];
+      this.miners = [];
       this.tanks = [];
       this.sonarRings = [];
       this.sparkleParticles = [];
 
-      // Quests State
       this.currentQuestIndex = 0;
       this.questProgress = 0;
 
-      // Markets
       this.markets = {
         west: { name: '华西', price: 45.0, change: 0, history: [45.0], valveOpen: false, trend: 'STABLE' },
         east: { name: '华东', price: 42.0, change: 0, history: [42.0], valveOpen: false, trend: 'STABLE' }
@@ -358,14 +362,12 @@
     }
 
     initUI() {
-      // Language Toggle Button
       document.getElementById('btn-lang-toggle').addEventListener('click', () => {
         this.currentLang = this.currentLang === 'zh' ? 'en' : 'zh';
         this.updateLocalization();
         this.showToast(this.currentLang === 'zh' ? '已切换至中文' : 'Switched to English');
       });
 
-      // Visual Theme Selector
       document.getElementById('select-visual-theme').addEventListener('change', (e) => {
         this.currentTheme = e.target.value;
         const container = document.getElementById('game-container');
@@ -373,7 +375,6 @@
         this.showToast(`Visual Scheme: ${e.target.options[e.target.selectedIndex].text}`);
       });
 
-      // Tool Select Buttons
       document.querySelectorAll('.tool-btn[data-tool]').forEach((btn) => {
         btn.addEventListener('click', () => {
           document.querySelectorAll('.tool-btn[data-tool]').forEach((b) => b.classList.remove('active'));
@@ -549,7 +550,8 @@
           y: CONFIG.GROUND_Y - 8,
           dir: Math.random() < 0.5 ? -1 : 1,
           scanRadius: 8,
-          maxScanRadius: 70
+          maxScanRadius: 70,
+          walkFrame: 0
         });
         this.showToast(this.currentLang === 'zh' ? '探矿员出发巡逻！' : 'Prospector deployed!');
       } else if (this.selectedTool === 'radar') {
@@ -595,18 +597,18 @@
         this.totalExpenses += 150;
         this.audio.playPickaxe();
 
-        // Assign miner to first available shaft
         const shaft = this.shafts[0];
         this.miners.push({
           x: shaft.x,
           y: shaft.y,
           shaftX: shaft.x,
-          state: 'IDLE', // IDLE, WALKING_TO_GOLD, DIGGING, HAULING_BACK
+          state: 'IDLE',
           targetGoldIndex: -1,
           goldCarried: 0,
           maxCarried: 30 * this.upgrades.cartCapacity,
           digProgress: 0,
-          pickAngle: 0
+          pickAngle: 0,
+          wheelAngle: 0
         });
         this.showToast(this.currentLang === 'zh' ? '矿工下矿探金！' : 'Miner hired!');
       } else if (this.selectedTool === 'tunnel') {
@@ -703,7 +705,6 @@
     }
 
     update(dt) {
-      // Month timer
       this.monthTimer -= dt;
       if (this.monthTimer <= 0) {
         this.monthTimer = CONFIG.MONTH_SECONDS;
@@ -714,7 +715,6 @@
         }
       }
 
-      // Update Market Prices
       ['west', 'east'].forEach((mKey) => {
         const m = this.markets[mKey];
         const delta = (Math.random() - 0.49) * 0.9;
@@ -732,9 +732,9 @@
         }
       });
 
-      // Prospectors scanning
       this.prospectors.forEach((p) => {
         p.x += p.dir * 20 * dt;
+        p.walkFrame = (p.walkFrame + 10 * dt) % 1;
         if (p.x < 30 || p.x > CONFIG.CANVAS_WIDTH - 30) p.dir *= -1;
 
         p.scanRadius += 35 * dt;
@@ -750,17 +750,14 @@
         });
       });
 
-      // Human Miners Logic (Underground Mining & Cart Hauling)
       this.updateHumanMiners(dt);
 
-      // Sparkle particles update
       for (let i = this.sparkleParticles.length - 1; i >= 0; i--) {
         const sp = this.sparkleParticles[i];
         sp.alpha -= 1.2 * dt;
         if (sp.alpha <= 0) this.sparkleParticles.splice(i, 1);
       }
 
-      // Selling Gold via Valves
       let soldAmount = 0;
       if (this.markets.west.valveOpen && this.storedGold > 0) {
         const rate = Math.min(this.storedGold, 20 * dt);
@@ -789,7 +786,6 @@
     }
 
     updateHumanMiners(dt) {
-      // Find connected gold deposits via tunnels
       const connectedGoldIndices = this.tunnels
         .filter((t) => t.connectedIndex !== -1)
         .map((t) => t.connectedIndex);
@@ -798,7 +794,6 @@
         const moveSpeed = 45 * this.upgrades.minerSpeed * dt;
 
         if (m.state === 'IDLE') {
-          // Look for available gold vein with gold remaining
           const validIndex = connectedGoldIndices.find(
             (idx) => this.goldDeposits[idx] && this.goldDeposits[idx].amount > 0
           );
@@ -821,6 +816,7 @@
           if (dist > 8) {
             m.x += (dx / dist) * moveSpeed;
             m.y += (dy / dist) * moveSpeed;
+            m.wheelAngle += 10 * dt;
           } else {
             m.state = 'DIGGING';
             m.digProgress = 0;
@@ -842,7 +838,6 @@
             m.state = 'HAULING_BACK';
           }
         } else if (m.state === 'HAULING_BACK') {
-          // Walk back to surface shaft
           const dx = m.shaftX - m.x;
           const dy = CONFIG.GROUND_Y - m.y;
           const dist = Math.hypot(dx, dy);
@@ -850,8 +845,8 @@
           if (dist > 8) {
             m.x += (dx / dist) * moveSpeed;
             m.y += (dy / dist) * moveSpeed;
+            m.wheelAngle += 10 * dt;
           } else {
-            // Deposit gold in storage
             const spaceLeft = this.storageCapacity - this.storedGold;
             const depositAmount = Math.min(spaceLeft, m.goldCarried);
             this.storedGold += depositAmount;
@@ -922,7 +917,7 @@
 
       this.renderUndergroundRocks(ctx);
 
-      // Draw Tunnels & Mine Pathways
+      // Tunnels
       this.tunnels.forEach((t) => {
         ctx.lineWidth = 14;
         ctx.strokeStyle = 'rgba(0, 0, 0, 0.45)';
@@ -941,7 +936,7 @@
         ctx.setLineDash([]);
       });
 
-      // Tunnel Guideline Preview
+      // Tunnel Preview
       if (this.selectedTool === 'tunnel' && this.activeTunnelOrigin) {
         ctx.strokeStyle = palette.goldFacet;
         ctx.lineWidth = 2;
@@ -953,25 +948,28 @@
         ctx.setLineDash([]);
       }
 
-      // Discovered Metallic Gold Nuggets
+      // Discovered Gold Nuggets
       this.goldDeposits.forEach((dep) => {
         if (dep.discovered) {
           const ratio = dep.amount / dep.initialAmount;
           if (dep.amount > 0) {
-            const r = Math.max(5, dep.radius * ratio);
+            const r = Math.max(6, dep.radius * ratio);
 
             ctx.fillStyle = palette.goldGlow;
             ctx.beginPath();
-            ctx.arc(dep.x, dep.y, r + 5, 0, Math.PI * 2);
+            ctx.arc(dep.x, dep.y, r + 6, 0, Math.PI * 2);
             ctx.fill();
 
+            // Render Faceted Polygon Gold Ore Nugget
             ctx.fillStyle = palette.goldBase;
             ctx.beginPath();
             ctx.arc(dep.x, dep.y, r, 0, Math.PI * 2);
             ctx.fill();
 
             ctx.fillStyle = palette.goldFacet;
-            ctx.fillRect(dep.x - r * 0.4, dep.y - r * 0.4, r * 0.8, r * 0.8);
+            ctx.fillRect(dep.x - r * 0.5, dep.y - r * 0.5, r, r);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(dep.x - r * 0.2, dep.y - r * 0.2, r * 0.4, r * 0.4);
 
             ctx.fillStyle = '#ffffff';
             ctx.font = '11px "VT323", monospace';
@@ -986,7 +984,7 @@
         }
       });
 
-      // Render Shaft Entrance Towers
+      // Shaft Entrances
       this.shafts.forEach((s) => {
         ctx.fillStyle = '#5d4037';
         ctx.fillRect(s.x - 14, s.y - 24, 28, 24);
@@ -995,49 +993,18 @@
         ctx.lineWidth = 3;
         ctx.strokeRect(s.x - 14, s.y - 24, 28, 24);
 
-        // Shaft Wheel
         ctx.fillStyle = '#d7ccc8';
         ctx.beginPath();
         ctx.arc(s.x, s.y - 12, 6, 0, Math.PI * 2);
         ctx.fill();
       });
 
-      // Render Human Underground Miners & Minecarts
+      // High Quality Animated Human Miners
       this.miners.forEach((m) => {
-        // Miner Body
-        ctx.fillStyle = palette.minerCloth;
-        ctx.fillRect(m.x - 5, m.y - 10, 10, 10);
-
-        // Miner Helmet with Light Glow
-        ctx.fillStyle = '#f1c40f';
-        ctx.fillRect(m.x - 4, m.y - 14, 8, 4);
-
-        ctx.fillStyle = 'rgba(255, 235, 59, 0.4)';
-        ctx.beginPath();
-        ctx.arc(m.x + 4, m.y - 12, 10, -Math.PI / 4, Math.PI / 4);
-        ctx.fill();
-
-        // Pickaxe when Digging
-        if (m.state === 'DIGGING') {
-          ctx.save();
-          ctx.translate(m.x + 4, m.y - 6);
-          ctx.rotate(Math.sin(m.pickAngle) * 0.6);
-          ctx.fillStyle = '#bdc3c7';
-          ctx.fillRect(0, -6, 8, 3);
-          ctx.restore();
-        }
-
-        // Minecart with Gold Ore when Hauling Back
-        if (m.goldCarried > 0) {
-          ctx.fillStyle = '#424242';
-          ctx.fillRect(m.x - 8, m.y + 2, 16, 8);
-
-          ctx.fillStyle = palette.goldFacet;
-          ctx.fillRect(m.x - 6, m.y, 12, 4);
-        }
+        this.renderMinerSprite(ctx, m, palette);
       });
 
-      // Tanks / Warehouses
+      // Warehouses
       this.tanks.forEach((t) => {
         ctx.fillStyle = '#e67e22';
         ctx.fillRect(t.x - 16, t.y, 32, 20);
@@ -1045,18 +1012,9 @@
         ctx.fillRect(t.x - 14, t.y + 2, 28, 4);
       });
 
-      // Prospectors
+      // Prospector Sprites
       this.prospectors.forEach((p) => {
-        ctx.fillStyle = palette.minerCloth;
-        ctx.fillRect(p.x - 5, p.y - 10, 10, 10);
-        ctx.fillStyle = '#f1c40f';
-        ctx.fillRect(p.x - 3, p.y - 14, 6, 4);
-
-        ctx.strokeStyle = 'rgba(241, 196, 15, 0.5)';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y + 30, p.scanRadius, 0, Math.PI * 2);
-        ctx.stroke();
+        this.renderProspectorSprite(ctx, p, palette);
       });
 
       // Sonar Rings
@@ -1071,6 +1029,116 @@
       // Sparklines
       this.renderMarketChart('west-chart', this.markets.west.history);
       this.renderMarketChart('east-chart', this.markets.east.history);
+    }
+
+    renderMinerSprite(ctx, m, palette) {
+      ctx.save();
+      ctx.translate(m.x, m.y);
+
+      // Hard Hat & Glowing Lamp Beam
+      ctx.fillStyle = palette.hardhat;
+      ctx.fillRect(-6, -16, 12, 5);
+
+      // Headlamp Cone Glow Beam
+      ctx.fillStyle = 'rgba(255, 241, 118, 0.35)';
+      ctx.beginPath();
+      ctx.moveTo(0, -14);
+      ctx.lineTo(24, -22);
+      ctx.lineTo(24, -6);
+      ctx.closePath();
+      ctx.fill();
+
+      // Face & Eye
+      ctx.fillStyle = '#ffcc80';
+      ctx.fillRect(-4, -11, 8, 5);
+      ctx.fillStyle = '#212121';
+      ctx.fillRect(2, -10, 2, 2);
+
+      // Shirt & Denim Overalls
+      ctx.fillStyle = palette.minerShirt;
+      ctx.fillRect(-5, -6, 10, 6);
+      ctx.fillStyle = palette.minerPants;
+      ctx.fillRect(-5, 0, 10, 6);
+
+      // Boots
+      ctx.fillStyle = '#3e2723';
+      ctx.fillRect(-6, 6, 5, 4);
+      ctx.fillRect(1, 6, 5, 4);
+
+      // Animated Pickaxe Swing Frame
+      if (m.state === 'DIGGING') {
+        ctx.save();
+        ctx.translate(3, -4);
+        ctx.rotate(Math.sin(m.pickAngle) * 0.8);
+        ctx.fillStyle = '#795548';
+        ctx.fillRect(0, -2, 10, 2);
+        ctx.fillStyle = '#e0e0e0';
+        ctx.beginPath();
+        ctx.arc(10, -1, 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // Minecart & Gold Chunks when Hauling Back
+      if (m.goldCarried > 0) {
+        ctx.fillStyle = '#37474f';
+        ctx.fillRect(-12, 2, 12, 8);
+
+        // Gold Chunks in Cart
+        ctx.fillStyle = palette.goldFacet;
+        ctx.fillRect(-10, -1, 8, 4);
+        ctx.fillRect(-6, -3, 4, 3);
+
+        // Minecart Turning Wheels
+        ctx.save();
+        ctx.translate(-10, 10);
+        ctx.rotate(m.wheelAngle);
+        ctx.fillStyle = '#212121';
+        ctx.beginPath();
+        ctx.arc(0, 0, 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        ctx.save();
+        ctx.translate(-2, 10);
+        ctx.rotate(m.wheelAngle);
+        ctx.fillStyle = '#212121';
+        ctx.beginPath();
+        ctx.arc(0, 0, 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      ctx.restore();
+    }
+
+    renderProspectorSprite(ctx, p, palette) {
+      ctx.save();
+      ctx.translate(p.x, p.y);
+
+      // Backpack
+      ctx.fillStyle = '#5d4037';
+      ctx.fillRect(-9, -12, 4, 8);
+
+      // Hat
+      ctx.fillStyle = '#f57f17';
+      ctx.fillRect(-7, -18, 14, 4);
+
+      // Body & Legs
+      ctx.fillStyle = palette.minerShirt;
+      ctx.fillRect(-5, -14, 10, 8);
+      ctx.fillStyle = '#37474f';
+      ctx.fillRect(-5, -6, 10, 6);
+
+      // Dowsing Rod
+      ctx.strokeStyle = '#fbc02d';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(3, -8);
+      ctx.lineTo(12, -4);
+      ctx.stroke();
+
+      ctx.restore();
     }
 
     renderPixelDecorations(ctx) {
@@ -1147,21 +1215,18 @@
       const daysLeft = Math.ceil((this.monthTimer / CONFIG.MONTH_SECONDS) * 30);
       document.getElementById('time-display').innerText = `M${this.currentMonth} (${daysLeft}d)`;
 
-      // West Market
       document.getElementById('west-price').innerText = this.markets.west.price.toFixed(1);
       const wChg = document.getElementById('west-price-change');
       wChg.innerText = `${this.markets.west.change >= 0 ? '+' : ''}${this.markets.west.change.toFixed(1)}`;
       wChg.className = `price-change ${this.markets.west.change >= 0 ? 'up' : 'down'}`;
       document.getElementById('west-trend-badge').innerText = this.markets.west.trend;
 
-      // East Market
       document.getElementById('east-price').innerText = this.markets.east.price.toFixed(1);
       const eChg = document.getElementById('east-price-change');
       eChg.innerText = `${this.markets.east.change >= 0 ? '+' : ''}${this.markets.east.change.toFixed(1)}`;
       eChg.className = `price-change ${this.markets.east.change >= 0 ? 'up' : 'down'}`;
       document.getElementById('east-trend-badge').innerText = this.markets.east.trend;
 
-      // Task HUD
       const t = TRANSLATIONS[this.currentLang];
       if (this.currentQuestIndex < QUEST_DEFINITIONS.length) {
         const q = QUEST_DEFINITIONS[this.currentQuestIndex];
