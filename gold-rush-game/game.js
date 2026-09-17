@@ -881,26 +881,136 @@
       }
     }
 
+    // Find path of waypoints along shafts and tunnels to target position/gold
+    buildTunnelPathForMiner(miner, targetGold) {
+      // Build network graph
+      const nodes = [];
+      const getNodeIndex = (x, y) => {
+        const found = nodes.findIndex((n) => Math.hypot(n.x - x, n.y - y) < 8);
+        if (found !== -1) return found;
+        nodes.push({ x, y, neighbors: [] });
+        return nodes.length - 1;
+      };
+
+      // Add shaft nodes: Top (s.x, GROUND_Y - 8) -> Bottom (s.x, GROUND_Y + 30)
+      let shaftTopIdx = -1;
+      let shaftBotIdx = -1;
+      this.shafts.forEach((s) => {
+        const top = getNodeIndex(s.x, CONFIG.GROUND_Y - 8);
+        const bot = getNodeIndex(s.x, CONFIG.GROUND_Y + 30);
+        nodes[top].neighbors.push({ nodeIdx: bot, dist: 38 });
+        nodes[bot].neighbors.push({ nodeIdx: top, dist: 38 });
+
+        if (Math.abs(s.x - miner.shaftX) < 10) {
+          shaftTopIdx = top;
+          shaftBotIdx = bot;
+        }
+      });
+
+      // Add tunnel edges
+      this.tunnels.forEach((t) => {
+        const n1 = getNodeIndex(t.x1, t.y1);
+        const n2 = getNodeIndex(t.x2, t.y2);
+        const dist = Math.hypot(t.x1 - t.x2, t.y1 - t.y2);
+        nodes[n1].neighbors.push({ nodeIdx: n2, dist });
+        nodes[n2].neighbors.push({ nodeIdx: n1, dist });
+      });
+
+      // Find current start node nearest to miner
+      let startIdx = 0;
+      let minDistStart = Infinity;
+      nodes.forEach((n, idx) => {
+        const d = Math.hypot(n.x - miner.x, n.y - miner.y);
+        if (d < minDistStart) {
+          minDistStart = d;
+          startIdx = idx;
+        }
+      });
+
+      // Target node nearest to target gold
+      let targetIdx = startIdx;
+      let minDistTarget = Infinity;
+      nodes.forEach((n, idx) => {
+        const d = Math.hypot(n.x - targetGold.x, n.y - targetGold.y);
+        if (d < minDistTarget) {
+          minDistTarget = d;
+          targetIdx = idx;
+        }
+      });
+
+      // Dijkstra algorithm for shortest path along tunnel graph
+      const dists = new Array(nodes.length).fill(Infinity);
+      const prev = new Array(nodes.length).fill(-1);
+      const visited = new Array(nodes.length).fill(false);
+
+      dists[startIdx] = 0;
+
+      for (let i = 0; i < nodes.length; i++) {
+        let u = -1;
+        let bestD = Infinity;
+        for (let j = 0; j < nodes.length; j++) {
+          if (!visited[j] && dists[j] < bestD) {
+            bestD = dists[j];
+            u = j;
+          }
+        }
+
+        if (u === -1 || u === targetIdx) break;
+        visited[u] = true;
+
+        nodes[u].neighbors.forEach((edge) => {
+          if (!visited[edge.nodeIdx]) {
+            const alt = dists[u] + edge.dist;
+            if (alt < dists[edge.nodeIdx]) {
+              dists[edge.nodeIdx] = alt;
+              prev[edge.nodeIdx] = u;
+            }
+          }
+        });
+      }
+
+      // Reconstruct path
+      const path = [];
+      let curr = targetIdx;
+      while (curr !== -1) {
+        path.unshift({ x: nodes[curr].x, y: nodes[curr].y });
+        curr = prev[curr];
+      }
+
+      // Append exact gold location if valid
+      if (path.length > 0) {
+        path.push({ x: targetGold.x, y: targetGold.y });
+      }
+
+      return path;
+    }
+
     updateHumanMiners(dt) {
       const connectedGoldIndices = this.tunnels
         .filter((t) => t.connectedIndex !== -1)
         .map((t) => t.connectedIndex);
 
       this.miners.forEach((m) => {
-        const moveSpeed = 40 * this.upgrades.minerSpeed * dt;
+        const moveSpeed = 45 * this.upgrades.minerSpeed * dt;
 
         if (m.state === 'WALKING_TO_SHAFT') {
+          // Walk on surface towards nearest shaft x
           const dx = m.shaftX - m.x;
           if (Math.abs(dx) > 4) {
             m.x += Math.sign(dx) * moveSpeed;
             m.y = CONFIG.GROUND_Y - 8;
           } else {
-            m.state = 'DESCENDING_SHAFT';
+            // Reached shaft top -> Fall into shaft
+            m.x = m.shaftX;
+            m.state = 'FALLING_INTO_SHAFT';
           }
-        } else if (m.state === 'DESCENDING_SHAFT') {
-          if (m.y < CONFIG.GROUND_Y + 40) {
-            m.y += moveSpeed;
+        } else if (m.state === 'FALLING_INTO_SHAFT') {
+          // Fall / descend directly down the vertical mine shaft
+          const targetY = CONFIG.GROUND_Y + 30;
+          if (m.y < targetY) {
+            m.y += moveSpeed * 1.5; // Accelerate fall into shaft
           } else {
+            m.y = targetY;
             m.state = 'IDLE';
           }
         } else if (m.state === 'IDLE') {
@@ -910,26 +1020,42 @@
 
           if (validIndex !== undefined) {
             m.targetGoldIndex = validIndex;
-            m.state = 'WALKING_TO_GOLD';
+            const targetGold = this.goldDeposits[validIndex];
+            m.path = this.buildTunnelPathForMiner(m, targetGold);
+            m.pathIndex = 0;
+            m.state = 'MOVING_ALONG_TUNNEL';
           }
-        } else if (m.state === 'WALKING_TO_GOLD') {
+        } else if (m.state === 'MOVING_ALONG_TUNNEL') {
           const gold = this.goldDeposits[m.targetGoldIndex];
           if (!gold || gold.amount <= 0) {
+            // Replan to haul back
+            m.path = this.buildTunnelPathForMiner(m, { x: m.shaftX, y: CONFIG.GROUND_Y - 8 });
+            m.pathIndex = 0;
             m.state = 'HAULING_BACK';
             return;
           }
 
-          const dx = gold.x - m.x;
-          const dy = gold.y - m.y;
+          if (!m.path || m.pathIndex >= m.path.length) {
+            m.state = 'DIGGING';
+            m.digProgress = 0;
+            return;
+          }
+
+          const targetWay = m.path[m.pathIndex];
+          const dx = targetWay.x - m.x;
+          const dy = targetWay.y - m.y;
           const dist = Math.hypot(dx, dy);
 
-          if (dist > 8) {
+          if (dist > 4) {
             m.x += (dx / dist) * moveSpeed;
             m.y += (dy / dist) * moveSpeed;
             m.wheelAngle += 10 * dt;
           } else {
-            m.state = 'DIGGING';
-            m.digProgress = 0;
+            m.pathIndex++;
+            if (m.pathIndex >= m.path.length) {
+              m.state = 'DIGGING';
+              m.digProgress = 0;
+            }
           }
         } else if (m.state === 'DIGGING') {
           const gold = this.goldDeposits[m.targetGoldIndex];
@@ -945,18 +1071,13 @@
           this.totalMined += actualDug;
 
           if (m.goldCarried >= m.maxCarried || !gold || gold.amount <= 0) {
+            m.path = this.buildTunnelPathForMiner(m, { x: m.shaftX, y: CONFIG.GROUND_Y - 8 });
+            m.pathIndex = 0;
             m.state = 'HAULING_BACK';
           }
         } else if (m.state === 'HAULING_BACK') {
-          const dx = m.shaftX - m.x;
-          const dy = CONFIG.GROUND_Y + 30 - m.y;
-          const dist = Math.hypot(dx, dy);
-
-          if (dist > 8) {
-            m.x += (dx / dist) * moveSpeed;
-            m.y += (dy / dist) * moveSpeed;
-            m.wheelAngle += 10 * dt;
-          } else {
+          if (!m.path || m.pathIndex >= m.path.length) {
+            // Arrived at shaft surface top
             m.y = CONFIG.GROUND_Y - 8;
             const spaceLeft = this.storageCapacity - this.storedGold;
 
@@ -965,12 +1086,42 @@
               this.storedGold += depositAmount;
               m.goldCarried -= depositAmount;
             } else {
-              // Storage overflow spill alert
               this.showToast(this.currentLang === 'zh' ? '⚠️ 黄金库存已满！建造储金仓库以防止溢出！' : '⚠️ Storage Full! Build Warehouses!');
             }
 
             if (m.goldCarried <= 0) {
-              m.state = 'IDLE';
+              m.state = 'FALLING_INTO_SHAFT'; // Fall back into shaft for next trip
+            }
+            return;
+          }
+
+          const targetWay = m.path[m.pathIndex];
+          const dx = targetWay.x - m.x;
+          const dy = targetWay.y - m.y;
+          const dist = Math.hypot(dx, dy);
+
+          if (dist > 4) {
+            m.x += (dx / dist) * moveSpeed;
+            m.y += (dy / dist) * moveSpeed;
+            m.wheelAngle += 10 * dt;
+          } else {
+            m.pathIndex++;
+            if (m.pathIndex >= m.path.length) {
+              // Deposit gold at shaft top
+              m.y = CONFIG.GROUND_Y - 8;
+              const spaceLeft = this.storageCapacity - this.storedGold;
+
+              if (spaceLeft > 0) {
+                const depositAmount = Math.min(spaceLeft, m.goldCarried);
+                this.storedGold += depositAmount;
+                m.goldCarried -= depositAmount;
+              } else {
+                this.showToast(this.currentLang === 'zh' ? '⚠️ 黄金库存已满！建造储金仓库以防止溢出！' : '⚠️ Storage Full! Build Warehouses!');
+              }
+
+              if (m.goldCarried <= 0) {
+                m.state = 'FALLING_INTO_SHAFT'; // Fall back into shaft for next trip
+              }
             }
           }
         }
